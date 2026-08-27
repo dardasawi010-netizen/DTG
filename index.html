@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>الرئيسية - TrucksApp</title>
+  <title>الرئيسية - تطبيق الشاحنات (TrucksApp)</title>
   <style>
     * {
       box-sizing: border-box;
@@ -37,28 +37,71 @@
       font-size: 1.2rem;
       color: #2e7d32;
     }
-    
-    /* شريط طلب شاحنة */
-    .request-form {
+
+    /* مربعات الخيارات الرئيسية */
+    .main-options {
+      display: flex;
+      gap: 10px;
+    }
+    .option-box {
+      flex: 1;
       background-color: #1e2631;
-      padding: 16px;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 20px 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .option-box:hover {
+      border-color: #2e7d32;
+      background-color: #252f3e;
+    }
+    .option-box span {
+      font-size: 0.95rem;
+      font-weight: bold;
+    }
+    .box-shipment { color: #48bb78; }
+    .box-whatsapp { color: #48bb78; }
+
+    /* النافذة المنبثقة (Modal) لطلب الشحن */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      z-index: 1000;
+    }
+    .modal-content {
+      background-color: #1e2631;
+      width: 100%;
+      max-width: 450px;
+      padding: 20px;
       border-radius: 12px;
       border: 1px solid #2d3748;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
     }
-    .request-form h3 {
-      font-size: 1rem;
-      color: #a0aec0;
+    .modal-content h3 {
+      color: #f0f4f8;
+      font-size: 1.1rem;
       margin-bottom: 5px;
     }
-    .form-group {
-      display: flex;
-      gap: 8px;
-    }
     .form-control {
-      flex: 1;
+      width: 100%;
       padding: 10px;
       border-radius: 6px;
       border: 1px solid #4a5568;
@@ -70,26 +113,43 @@
     .form-control:focus {
       border-color: #2e7d32;
     }
-    .btn-send {
-      background-color: #2e7d32;
-      color: white;
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+    }
+    .btn {
+      flex: 1;
+      padding: 10px;
       border: none;
-      padding: 12px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
-      font-size: 1rem;
-      transition: 0.2s;
     }
-    .btn-send:hover {
-      background-color: #256628;
+    .btn-submit { background-color: #2e7d32; color: white; }
+    .btn-close { background-color: #4a5568; color: white; }
+
+    /* نافذة واتساب المنبثقة */
+    .whatsapp-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+      padding: 15px;
+      z-index: 1000;
     }
 
-    /* قائمة الطلبات الشغالة */
+    /* قائمة الطلبات النشطة للجميع */
     .feed-container {
       display: flex;
       flex-direction: column;
       gap: 10px;
+      margin-top: 10px;
     }
     .truck-card {
       background-color: #1e2631;
@@ -108,13 +168,13 @@
     .card-info {
       display: flex;
       justify-content: space-between;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
     }
     .badge {
       background: #2d3748;
-      padding: 4px 8px;
+      padding: 3px 6px;
       border-radius: 4px;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
     .btn-accept {
       background-color: #3182ce;
@@ -138,28 +198,70 @@
       <h1>🚚 تطبيق الشاحنات (TrucksApp)</h1>
     </div>
 
-    <!-- شريط إدخال الطلب -->
-    <div class="request-form">
-      <h3>إرسال طلب شاحنة جديد:</h3>
+    <!-- مربعات الخيارات في الصفحة الرئيسية -->
+    <div class="main-options">
+      <div class="option-box" onclick="openShipmentModal()">
+        <span style="font-size: 1.8rem;">📦</span>
+        <span class="box-shipment">إرسال طلب شحن</span>
+      </div>
+      <div class="option-box" onclick="openWhatsappModal()">
+        <span style="font-size: 1.8rem;">💬</span>
+        <span class="box-whatsapp">مراسلة واتساب</span>
+      </div>
+    </div>
+
+    <!-- قسم الطلبات المتاحة للجميع -->
+    <h3 style="font-size: 1rem; color: #a0aec0;">الطلبات والشاحنات المتاحة حالياً:</h3>
+    <div class="feed-container" id="requestsFeed"></div>
+  </div>
+
+  <!-- نافذة إرسال طلب الشحن المنبثقة -->
+  <div class="modal" id="shipmentModal">
+    <div class="modal-content">
+      <h3>إرسال طلب شحن جديد</h3>
+      
+      <label style="font-size: 0.85rem; color:#a0aec0;">نوع الشاحنة:</label>
       <select id="truckType" class="form-control">
-        <option value="">اختر نوع الشاحنة...</option>
         <option value="تريلا قاطرة ومقطورة">تريلا (قاطرة ومقطورة)</option>
-        <option value="شاحنة رأس تريلا">رأس تريلا</option>
+        <option value="رأس تريلا">رأس تريلا</option>
         <option value="ديانا / شاحنة صغيرة">ديانا (شاحنة صغيرة)</option>
         <option value="سكس / شاحنة متوسطة">سكس (شاحنة متوسطة)</option>
       </select>
 
-      <div class="form-group">
-        <input type="number" id="tons" class="form-control" placeholder="عدد الأطنان (مثال: 25)">
-        <input type="text" id="truckNo" class="form-control" placeholder="رقم الشاحنة/اللوحة">
+      <label style="font-size: 0.85rem; color:#a0aec0;">عدد الأطنان:</label>
+      <input type="number" id="tons" class="form-control" placeholder="مثال: 25 طن">
+
+      <label style="font-size: 0.85rem; color:#a0aec0;">رقم الشاحنة (اللوحة):</label>
+      <input type="text" id="truckNo" class="form-control" placeholder="مثال: 12-34567">
+
+      <label style="font-size: 0.85rem; color:#a0aec0;">الموقع الحالي:</label>
+      <input type="text" id="currentLocation" class="form-control" placeholder="مثال: عمان، المدورة...">
+
+      <label style="font-size: 0.85rem; color:#a0aec0;">الوجهة (إين ذاهبة):</label>
+      <input type="text" id="destination" class="form-control" placeholder="مثال: العقبة، الزرقاء...">
+
+      <div class="modal-buttons">
+        <button class="btn btn-submit" onclick="sendTruckRequest()">إرسال ونشر للجميع</button>
+        <button class="btn btn-close" onclick="closeShipmentModal()">إلغاء</button>
       </div>
-
-      <button class="btn-send" onclick="sendTruckRequest()">إرسال الطلب لجميع الهواتف 📡</button>
     </div>
+  </div>
 
-    <!-- قائمة الطلبات التي تظهر للجميع -->
-    <h3 style="font-size: 1rem; color: #a0aec0; margin-top: 10px;">الطلبات المتاحة حالياً:</h3>
-    <div class="feed-container" id="requestsFeed"></div>
+  <!-- نافذة مراسلة الواتساب المنبثقة -->
+  <div class="whatsapp-modal" id="whatsappModal">
+    <div class="modal-content">
+      <h3>التواصل عبر واتساب</h3>
+      <label style="font-size: 0.85rem; color:#a0aec0;">رقم الهاتف (مع رمز الدولة):</label>
+      <input type="tel" id="wa-phone" class="form-control" placeholder="مثال: 966500000000">
+
+      <label style="font-size: 0.85rem; color:#a0aec0;">الرسالة:</label>
+      <input type="text" id="wa-msg" class="form-control" placeholder="مرحباً، أرغب بالاستفسار عن...">
+
+      <div class="modal-buttons">
+        <button class="btn btn-submit" onclick="openWhatsappChat()">فتح المحادثة 💬</button>
+        <button class="btn btn-close" onclick="closeWhatsappModal()">إغلاق</button>
+      </div>
+    </div>
   </div>
 
   <!-- مكتبات Firebase -->
@@ -167,7 +269,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // إعدادات Firebase الخاصة بمشروعك
+    // إعدادات Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
       authDomain: "trucksapp-24ad7.firebaseapp.com",
@@ -183,14 +285,31 @@
     const database = firebase.database();
     const requestsRef = database.ref('truck_requests');
 
-    // إرسال الطلب لقاعدة البيانات
+    // التحكم في النوافذ المنبثقة
+    function openShipmentModal() {
+      document.getElementById('shipmentModal').style.display = 'flex';
+    }
+    function closeShipmentModal() {
+      document.getElementById('shipmentModal').style.display = 'none';
+    }
+
+    function openWhatsappModal() {
+      document.getElementById('whatsappModal').style.display = 'flex';
+    }
+    function closeWhatsappModal() {
+      document.getElementById('whatsappModal').style.display = 'none';
+    }
+
+    // إرسال طلب الشحن إلى قاعدة البيانات
     function sendTruckRequest() {
       const truckType = document.getElementById('truckType').value;
       const tons = document.getElementById('tons').value.trim();
       const truckNo = document.getElementById('truckNo').value.trim();
+      const currentLocation = document.getElementById('currentLocation').value.trim();
+      const destination = document.getElementById('destination').value.trim();
 
-      if (!truckType || !tons || !truckNo) {
-        alert('يرجى تعبئة جميع الحقول (نوع الشاحنة، الأطنان، ورقم الشاحنة)');
+      if (!tons || !truckNo || !currentLocation || !destination) {
+        alert('يرجى تعبئة جميع الحقول المطلوبة.');
         return;
       }
 
@@ -198,24 +317,41 @@
         truckType: truckType,
         tons: tons,
         truckNo: truckNo,
+        currentLocation: currentLocation,
+        destination: destination,
         status: 'open',
         timestamp: Date.now()
       });
 
-      // تفريغ الحقول بعد الإرسال
-      document.getElementById('truckType').value = '';
+      // تفريغ الحقول وإغلاق النافذة
       document.getElementById('tons').value = '';
       document.getElementById('truckNo').value = '';
+      document.getElementById('currentLocation').value = '';
+      document.getElementById('destination').value = '';
+      closeShipmentModal();
     }
 
-    // القبول من قبل أي سائق/مستخدم
+    // فتح محادثة واتساب
+    function openWhatsappChat() {
+      const phone = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
+      const msg = encodeURIComponent(document.getElementById('wa-msg').value.trim());
+
+      if (!phone) {
+        alert('يرجى إدخال رقم الهاتف صحيحاً');
+        return;
+      }
+      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+      closeWhatsappModal();
+    }
+
+    // قبول الشاحنة والطلب
     function acceptRequest(key) {
       database.ref('truck_requests/' + key).update({
         status: 'accepted'
       });
     }
 
-    // الاستماع المباشر وعرض الطلبات على جميع الهواتف
+    // جلب وعرض الطلبات المباشرة لجميع الهواتف
     requestsRef.on('value', (snapshot) => {
       const feed = document.getElementById('requestsFeed');
       feed.innerHTML = '';
@@ -230,14 +366,17 @@
         card.innerHTML = `
           <div class="card-info">
             <strong>🚚 ${data.truckType}</strong>
-            <span class="badge">رقم: ${data.truckNo}</span>
+            <span class="badge">رقم اللوحة: ${data.truckNo}</span>
           </div>
           <div class="card-info">
-            <span>⚖️ الوزن: <strong>${data.tons} طن</strong></span>
-            <span>الحالة: ${data.status === 'accepted' ? '<span style="color:#e53e3e">تم القبول 🔒</span>' : '<span style="color:#38a169">متاح 🟢</span>'}</span>
+            <span>⚖️ الأطنان: <strong>${data.tons} طن</strong></span>
+            <span>الحالة: ${data.status === 'accepted' ? '<span style="color:#e53e3e">محجوزة 🔒</span>' : '<span style="color:#38a169">متاح 🟢</span>'}</span>
+          </div>
+          <div style="font-size: 0.85rem; color: #a0aec0; border-top: 1px solid #2d3748; padding-top: 6px;">
+            📍 من: ${data.currentLocation} ➔ إلى: ${data.destination}
           </div>
           <button class="btn-accept" ${data.status === 'accepted' ? 'disabled' : ''} onclick="acceptRequest('${key}')">
-            ${data.status === 'accepted' ? 'تم حجز هذه الشاحنة' : 'أنا أقبل (حجز)'}
+            ${data.status === 'accepted' ? 'تم حجز هذه الشاحنة' : 'أنا أقبل (حجز الطلب)'}
           </button>
         `;
 
@@ -248,3 +387,4 @@
 
 </body>
 </html>
+
