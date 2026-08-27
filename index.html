@@ -1,515 +1,161 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TDG - تطبيق الشاحنات</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-    body {
-      background-color: #12181f;
-      color: #ffffff;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 15px;
-    }
-    
-    /* شاشة تسجيل الدخول */
-    #auth-screen {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: #12181f;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-      padding: 15px;
-    }
-    .auth-card {
-      background-color: #1e2631;
-      width: 100%;
-      max-width: 380px;
-      padding: 25px;
-      border-radius: 12px;
-      border: 1px solid #2d3748;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      text-align: center;
-    }
-    .auth-card h2 { color: #2e7d32; margin-bottom: 5px; }
-
-    /* التطبيق الرئيسي */
-    .app-container {
-      width: 100%;
-      max-width: 500px;
-      display: none;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .header-card {
-      background-color: #1e2631;
-      padding: 16px;
-      border-radius: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #2d3748;
-    }
-    .header-card h1 {
-      font-size: 1.1rem;
-      color: #2e7d32;
-    }
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .tdg-title {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #3182ce;
-      background: #12181f;
-      padding: 4px 10px;
-      border-radius: 6px;
-      border: 1px solid #2d3748;
-    }
-    .settings-btn {
-      background: #2d3748;
-      border: none;
-      color: white;
-      padding: 6px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-    }
-
-    /* مربعات الخيارات الرئيسية */
-    .main-options {
-      display: flex;
-      gap: 10px;
-    }
-    .option-box {
-      flex: 1;
-      background-color: #1e2631;
-      border: 1px solid #2d3748;
-      border-radius: 12px;
-      padding: 15px 10px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.2s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 6px;
-    }
-    .option-box:hover {
-      border-color: #2e7d32;
-      background-color: #252f3e;
-    }
-    .option-box span {
-      font-size: 0.85rem;
-      font-weight: bold;
-      color: #48bb78;
-    }
-
-    /* النوافذ المنبثقة (Modal) */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.7);
-      justify-content: center;
-      align-items: center;
-      padding: 15px;
-      z-index: 1000;
-    }
-    .modal-content {
-      background-color: #1e2631;
-      width: 100%;
-      max-width: 450px;
-      padding: 20px;
-      border-radius: 12px;
-      border: 1px solid #2d3748;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-    .modal-content h3 { color: #f0f4f8; font-size: 1.05rem; }
-    .form-control {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #4a5568;
-      background-color: #12181f;
-      color: #fff;
-      font-size: 0.9rem;
-      outline: none;
-    }
-    .form-control:focus { border-color: #2e7d32; }
-    .modal-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 5px;
-    }
-    .btn {
-      flex: 1;
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-submit { background-color: #2e7d32; color: white; }
-    .btn-danger { background-color: #e53e3e; color: white; }
-    .btn-close { background-color: #4a5568; color: white; }
-
-    /* قائمة الطلبات بالشريط المطلوب */
-    .feed-container {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .truck-card {
-      background-color: #1e2631;
-      border-radius: 10px;
-      padding: 12px;
-      border: 1px solid #2d3748;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-    }
-    .card-left-side {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      flex: 1;
-      text-align: right;
-    }
-    .card-details-row {
-      font-size: 0.85rem;
-      color: #cbd5e0;
-    }
-    .card-route {
-      font-size: 0.95rem;
-      font-weight: bold;
-      color: #ffffff;
-    }
-    .btn-whatsapp-card {
-      background-color: #27833a;
-      color: white;
-      border: none;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      text-align: center;
-      font-size: 0.85rem;
-      white-space: nowrap;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2px;
-      transition: 0.2s;
-    }
-    .btn-whatsapp-card:hover {
-      background-color: #216e30;
-    }
-    .btn-whatsapp-card:disabled {
-      background-color: #4a5568;
-      cursor: not-allowed;
-      color: #a0aec0;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة ماريو المصغرة</title>
+    <style>
+        body {
+            background-color: #222;
+            color: white;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        canvas {
+            background-color: #5c94fc; /* لون سماء ماريو الكلاسيكي */
+            display: block;
+            margin: 20px auto;
+            border: 4px solid #fff;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+        }
+        .instructions {
+            font-size: 16px;
+            color: #ddd;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- شاشة تسجيل الدخول الإجبارية -->
-  <div id="auth-screen">
-    <div class="auth-card">
-      <h2>تسجيل الدخول - TDG</h2>
-      <p style="font-size: 0.85rem; color: #a0aec0;">يرجى إدخال رقم الهاتف أو البريد الإلكتروني للمتابعة</p>
-      <input type="text" id="authInput" class="form-control" placeholder="رقم الهاتف أو البريد الإلكتروني">
-      <button class="btn btn-submit" onclick="loginUser()">دخول للتطبيق</button>
-    </div>
-  </div>
-
-  <!-- التطبيق الرئيسي -->
-  <div class="app-container" id="appMain">
-    <div class="header-card">
-      <h1>🚚 تطبيق الشاحنات</h1>
-      <div class="header-left">
-        <div class="tdg-title">TDG</div>
-        <button class="settings-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
-      </div>
+    <h1>لعبة ماريو المصغرة</h1>
+    <div class="instructions">
+        استخدم <strong>السهم الأيمن والأيسر</strong> للحركة، ومفتاح <strong>السهم الأيمن + المسافة</strong> أو <strong>السهم الأعلى (↑)</strong> للقفز!
     </div>
 
-    <!-- مربعات الخيارات الرئيسية -->
-    <div class="main-options">
-      <div class="option-box" onclick="openShipmentModal()">
-        <span style="font-size: 1.5rem;">📦</span>
-        <span>إرسال طلب شحن</span>
-      </div>
-      <div class="option-box" onclick="openWhatsappModal()">
-        <span style="font-size: 1.5rem;">💬</span>
-        <span>مراسلة واتساب مباشرة</span>
-      </div>
-    </div>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
 
-    <!-- قائمة الطلبات المتاحة للجميع -->
-    <h3 style="font-size: 0.95rem; color: #a0aec0; margin-top: 5px;">الطلبات والشاحنات المنشورة للجميع:</h3>
-    <div class="feed-container" id="requestsFeed"></div>
-  </div>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-  <!-- نافذة إعدادات التطبيق (تسجيل الخروج) -->
-  <div class="modal" id="settingsModal">
-    <div class="modal-content">
-      <h3>إعدادات الحساب</h3>
-      <p style="font-size: 0.85rem; color: #a0aec0;" id="settingsUserInfo"></p>
-      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-        <button class="btn btn-danger" onclick="logoutUser()">تسجيل الخروج من الحساب</button>
-        <button class="btn btn-close" onclick="closeSettingsModal()">إغلاق</button>
-      </div>
-    </div>
-  </div>
+        // خصائص اللاعب (ماريو)
+        let mario = {
+            x: 50,
+            y: 200,
+            width: 30,
+            height: 40,
+            speed: 4,
+            dx: 0,
+            dy: 0,
+            jumpPower: -10,
+            grounded: false,
+            color: "#e52521" // أحمر ماريو
+        };
 
-  <!-- نافذة طلب الشحن -->
-  <div class="modal" id="shipmentModal">
-    <div class="modal-content">
-      <h3>إرسال طلب شحن جديد</h3>
-      <label style="font-size: 0.8rem; color:#a0aec0;">نوع الشاحنة:</label>
-      <select id="truckType" class="form-control">
-        <option value="تريلا قاطرة ومقطورة">تريلا (قاطرة ومقطورة)</option>
-        <option value="رأس تريلا">رأس تريلا</option>
-        <option value="ديانا / شاحنة صغيرة">ديانا (شاحنة صغيرة)</option>
-        <option value="سكس / شاحنة متوسطة">سكس (شاحنة متوسطة)</option>
-      </select>
+        // الجاذبية والبيئة
+        const gravity = 0.5;
+        
+        // المنصات والعوائق
+        let platforms = [
+            { x: 0, y: 350, width: 800, height: 50, color: "#00a800" }, // الأرضية
+            { x: 300, y: 250, width: 150, height: 20, color: "#c84c0c" }, // منصة 1
+            { x: 550, y: 180, width: 120, height: 20, color: "#c84c0c" }  // منصة 2
+        ];
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">عدد الأطنان:</label>
-      <input type="number" id="tons" class="form-control" placeholder="مثال: 25">
+        // تتبع الأزرار المضغوطة
+        let keys = {};
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">رقم الشاحنة (اللوحة):</label>
-      <input type="text" id="truckNo" class="form-control" placeholder="مثال: 12-34567">
+        window.addEventListener("keydown", (e) => {
+            keys[e.code] = true;
+            // القفز عند الضغط على المسافة أو السهم لأعلى
+            if ((e.code === "Space" || e.code === "ArrowUp") && mario.grounded) {
+                mario.dy = mario.jumpPower;
+                mario.grounded = false;
+            }
+        });
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">الموقع الحالي:</label>
-      <input type="text" id="currentLocation" class="form-control" placeholder="مثال: عمان">
+        window.addEventListener("keyup", (e) => {
+            keys[e.code] = false;
+        });
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">الوجهة (إلى أين ذاهبة):</label>
-      <input type="text" id="destination" class="form-control" placeholder="مثال: العقبة">
+        function update() {
+            // التحكم الأفقي
+            if (keys["ArrowRight"]) {
+                mario.dx = mario.speed;
+            } else if (keys["ArrowLeft"]) {
+                mario.dx = -mario.speed;
+            } else {
+                mario.dx = 0;
+            }
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">رقم الواتساب للتواصل (مع رمز الدولة):</label>
-      <input type="tel" id="whatsappNumber" class="form-control" placeholder="مثال: 962790000000">
+            // تطبيق الجاذبية
+            mario.dy += gravity;
 
-      <div class="modal-buttons">
-        <button class="btn btn-submit" onclick="sendTruckRequest()">تأكيد ونشر للجميع</button>
-        <button class="btn btn-close" onclick="closeShipmentModal()">إلغاء</button>
-      </div>
-    </div>
-  </div>
+            // تحديث موقع ماريو
+            mario.x += mario.dx;
+            mario.y += mario.dy;
 
-  <!-- نافذة واتساب السريعة -->
-  <div class="modal" id="whatsappModal">
-    <div class="modal-content">
-      <h3>مراسلة عبر واتساب</h3>
-      <label style="font-size: 0.8rem; color:#a0aec0;">رقم الهاتف (مع رمز الدولة):</label>
-      <input type="tel" id="wa-phone" class="form-control" placeholder="مثال: 962790000000">
+            // الحدود الجانبية للشاشة
+            if (mario.x < 0) mario.x = 0;
+            if (mario.x + mario.width > canvas.width) mario.x = canvas.width - mario.width;
 
-      <label style="font-size: 0.8rem; color:#a0aec0;">الرسالة:</label>
-      <input type="text" id="wa-msg" class="form-control" placeholder="مرحباً...">
+            // فحص الاصطدام بالمنصات والأرض
+            mario.grounded = false;
+            platforms.forEach(plat => {
+                // اصطدام من الأعلى
+                if (
+                    mario.x < plat.x + plat.width &&
+                    mario.x + mario.width > plat.x &&
+                    mario.y + mario.height >= plat.y &&
+                    mario.y + mario.height - mario.dy <= plat.y
+                ) {
+                    mario.dy = 0;
+                    mario.y = plat.y - mario.height;
+                    mario.grounded = true;
+                }
+            });
 
-      <div class="modal-buttons">
-        <button class="btn btn-submit" onclick="openWhatsappChat()">فتح الواتساب</button>
-        <button class="btn btn-close" onclick="closeWhatsappModal()">إلغاء</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- مكتبات Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
-      authDomain: "trucksapp-24ad7.firebaseapp.com",
-      projectId: "trucksapp-24ad7",
-      storageBucket: "trucksapp-24ad7.firebasestorage.app",
-      messagingSenderId: "254565994313",
-      appId: "1:254565994313:web:5df17e62fb68d94a9dd498",
-      measurementId: "G-Z5K2C79V50",
-      databaseURL: "https://trucksapp-24ad7-default-rtdb.firebaseio.com"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const requestsRef = database.ref('tdg_truck_requests');
-
-    let currentUser = localStorage.getItem('tdg_current_user') || "";
-
-    window.onload = function() {
-      if (currentUser) {
-        document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('appMain').style.display = 'flex';
-      }
-    };
-
-    function playBeepSound() {
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.12);
-      } catch (e) {
-        console.log("Audio error");
-      }
-    }
-
-    function loginUser() {
-      const val = document.getElementById('authInput').value.trim();
-      if (!val) {
-        alert("يرجى إدخال رقم الهاتف أو البريد الإلكتروني للمتابعة.");
-        return;
-      }
-      currentUser = val;
-      localStorage.setItem('tdg_current_user', currentUser);
-      document.getElementById('auth-screen').style.display = 'none';
-      document.getElementById('appMain').style.display = 'flex';
-      playBeepSound();
-    }
-
-    function logoutUser() {
-      playBeepSound();
-      localStorage.removeItem('tdg_current_user');
-      location.reload();
-    }
-
-    function openShipmentModal() { playBeepSound(); document.getElementById('shipmentModal').style.display = 'flex'; }
-    function closeShipmentModal() { playBeepSound(); document.getElementById('shipmentModal').style.display = 'none'; }
-    function openWhatsappModal() { playBeepSound(); document.getElementById('whatsappModal').style.display = 'flex'; }
-    function closeWhatsappModal() { playBeepSound(); document.getElementById('whatsappModal').style.display = 'none'; }
-    
-    function openSettingsModal() { 
-      playBeepSound(); 
-      document.getElementById('settingsUserInfo').innerText = "الحساب الحالي: " + currentUser;
-      document.getElementById('settingsModal').style.display = 'flex'; 
-    }
-    function closeSettingsModal() { playBeepSound(); document.getElementById('settingsModal').style.display = 'none'; }
-
-    function sendTruckRequest() {
-      const truckType = document.getElementById('truckType').value;
-      const tons = document.getElementById('tons').value.trim();
-      const truckNo = document.getElementById('truckNo').value.trim();
-      const currentLocation = document.getElementById('currentLocation').value.trim();
-      const destination = document.getElementById('destination').value.trim();
-      const whatsappNumber = document.getElementById('whatsappNumber').value.trim().replace(/[^0-9]/g, '');
-
-      if (!tons || !truckNo || !currentLocation || !destination || !whatsappNumber) {
-        alert('الرجاء تعبئة جميع الحقول بدقة بما فيها رقم الواتساب!');
-        return;
-      }
-
-      playBeepSound();
-
-      requestsRef.push({
-        sender: currentUser,
-        truckType: truckType,
-        tons: tons,
-        truckNo: truckNo,
-        currentLocation: currentLocation,
-        destination: destination,
-        whatsappNumber: whatsappNumber,
-        timestamp: Date.now()
-      });
-
-      document.getElementById('tons').value = '';
-      document.getElementById('truckNo').value = '';
-      document.getElementById('currentLocation').value = '';
-      document.getElementById('destination').value = '';
-      document.getElementById('whatsappNumber').value = '';
-      closeShipmentModal();
-      alert('تم إرسال الطلب ونشره بنجاح لجميع المستخدمين!');
-    }
-
-    function openWhatsappChat() {
-      const phone = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
-      const msg = encodeURIComponent(document.getElementById('wa-msg').value.trim());
-
-      if (!phone) {
-        alert('يجب كتابة رقم الهاتف بشكل صحيح مع رمز الدولة!');
-        return;
-      }
-      playBeepSound();
-      window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
-      closeWhatsappModal();
-    }
-
-    function acceptAndChat(whatsappNumber, truckType, route) {
-      playBeepSound();
-      const text = encodeURIComponent(`مرحباً، لقد أطلعت على طلب شحن (${truckType}) المسار (${route}) وأرغب بالتواصل معك بشأنه.`);
-      window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
-    }
-
-    requestsRef.on('value', (snapshot) => {
-      const feed = document.getElementById('requestsFeed');
-      feed.innerHTML = '';
-
-      if (!snapshot.exists()) {
-        feed.innerHTML = '<div style="color: #718096; text-align: center; padding: 20px;">لا توجد طلبات شحن متاحة حالياً.</div>';
-        return;
-      }
-
-      snapshot.forEach((childSnapshot) => {
-        const data = childSnapshot.val();
-        const isOwner = (data.sender === currentUser);
-        const routeText = `${data.currentLocation} الى ${data.destination}`;
-
-        const card = document.createElement('div');
-        card.className = `truck-card`;
-
-        let actionButtonHTML = "";
-        if (isOwner) {
-          actionButtonHTML = `<button class="btn-whatsapp-card" disabled>طلبك الخاص<br><span style="font-size:0.7rem; font-weight:normal;">لا يمكنك قبوله</span></button>`;
-        } else {
-          actionButtonHTML = `<button class="btn-whatsapp-card" onclick="acceptAndChat('${data.whatsappNumber}', '${data.truckType}', '${routeText}')">قبول وطلب<br>التواصل</button>`;
+            // إذا سقط خارج الشاشة (خسارة)
+            if (mario.y > canvas.height) {
+                resetGame();
+            }
         }
 
-        card.innerHTML = `
-          <div class="card-left-side">
-            <div class="card-details-row">🚚 شاحنة: ${data.truckNo} | ⚖️ ${data.tons} طن</div>
-            <div class="card-route">${routeText}</div>
-          </div>
-          <div>
-            ${actionButtonHTML}
-          </div>
-        `;
+        function resetGame() {
+            mario.x = 50;
+            mario.y = 200;
+            mario.dy = 0;
+        }
 
-        feed.prepend(card);
-      });
-    });
-  </script>
+        function draw() {
+            // مسح الشاشة لتحديث الإطار
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // رسم المنصات والأرضية
+            platforms.forEach(plat => {
+                ctx.fillStyle = plat.color;
+                ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+            });
+
+            // رسم ماريو (مربع أحمر يمثل الشخصية)
+            ctx.fillStyle = mario.color;
+            ctx.fillRect(mario.x, mario.y, mario.width, mario.height);
+            
+            // رسم قبعة أو تفصيلة بسيطة لماريو
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(mario.x + 5, mario.y + 5, 10, 5);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // بدء اللعبة
+        loop();
+    </script>
 
 </body>
 </html>
