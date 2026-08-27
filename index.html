@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة الديناصور - انقطاع الإنترنت</title>
+    <title>TDT - عالم الطخ بذكاء اصطناعي وصعوبات متعددة</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,241 +11,520 @@
             -webkit-user-select: none;
         }
         body {
-            background-color: #f7f7f7;
-            color: #535353;
-            text-align: center;
-            font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 20px;
+            overflow: hidden;
+            background-color: #1e1b4b;
+            font-family: 'Courier New', Courier, monospace;
+            text-align: center;
+        }
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            color: white;
         }
         h1 {
-            font-size: 18px;
+            font-size: 50px;
+            color: #fef08a;
             margin-bottom: 5px;
-            color: #333;
+            letter-spacing: 4px;
+            text-shadow: 3px 3px 0px #000;
         }
-        .score-board {
-            font-size: 14px;
-            margin-bottom: 10px;
+        .menu-btn {
+            background: #22c55e;
+            color: white;
+            border: 3px solid #fff;
+            padding: 12px 35px;
+            font-size: 20px;
             font-weight: bold;
+            border-radius: 15px;
+            cursor: pointer;
+            margin: 10px;
+            font-family: 'Courier New', Courier, monospace;
+            box-shadow: 0 5px 0px #15803d;
+            transition: 0.1s;
         }
-        .canvas-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px;
-            margin: 0 auto;
-            border-bottom: 2px solid #535353;
-            background: #fff;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        .menu-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px #15803d;
         }
-        canvas {
-            display: block;
-            width: 100%;
-            height: auto;
-            background: #fff;
+        .options-box {
+            background: rgba(0, 0, 0, 0.25);
+            padding: 12px 20px;
+            border-radius: 15px;
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            margin-bottom: 10px;
+            text-align: right;
+            max-width: 400px;
         }
-        /* زر إعادة اللعبة */
-        #restartBtn {
+        .select-group {
+            margin: 8px 0;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        select {
+            padding: 4px 10px;
+            font-family: 'Courier New', Courier, monospace;
+            background: #ffffff;
+            color: #000;
+            font-weight: bold;
+            border: 2px solid #000;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #gameUI {
             display: none;
             position: absolute;
-            top: 60%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #535353;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: bold;
-            font-family: 'Courier New', Courier, monospace;
-            border-radius: 4px;
-            cursor: pointer;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
             z-index: 10;
         }
-        #restartBtn:active {
-            background: #333;
+        .hud-top {
+            position: absolute;
+            top: 15px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 0 20px;
         }
-        .instructions {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #777;
+        .hud-row {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 500px;
         }
+        .hud-box {
+            color: #fff;
+            font-size: 15px;
+            font-weight: bold;
+            background: #3b82f6;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 2px solid #fff;
+            box-shadow: 0 3px 0px #1d4ed8;
+        }
+        #xpContainer {
+            width: 100%;
+            max-width: 500px;
+            height: 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 3px 0px rgba(0,0,0,0.3);
+        }
+        #xpBar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #facc15, #22c55e);
+            transition: width 0.3s ease-out;
+        }
+
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fef08a;
+            font-size: 28px;
+            pointer-events: none;
+            text-shadow: 2px 2px 0px #000;
+        }
+        #scopeOverlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 50px solid rgba(0, 0, 0, 0.95);
+            pointer-events: none;
+            box-sizing: border-box;
+            z-index: 15;
+        }
+        .game-controls {
+            position: absolute;
+            bottom: 25px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-sizing: border-box;
+            pointer-events: auto;
+            z-index: 20;
+        }
+        .control-btn {
+            width: 75px;
+            height: 75px;
+            border: 3px solid #fff;
+            border-radius: 50%;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 4px 0px rgba(0,0,0,0.3);
+        }
+        .control-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 1px 0px rgba(0,0,0,0.3);
+        }
+        #shootBtn { background: #ef4444; }
+        #scopeBtn { background: #06b6d4; }
     </style>
+    <!-- مكتبة Three.js الخفيفة -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <h1>🌵 لعبة الديناصور الشهيرة (بدون إنترنت) 🌵</h1>
-    <div class="score-board">النقاط: <span id="score">0</span></div>
+    <!-- الشاشة الرئيسية -->
+    <div id="mainMenu" class="screen">
+        <h1>TDT</h1>
+        <p style="color: #fef08a; margin-bottom: 10px; font-size: 15px; font-weight: bold;">عالم الذكاء الاصطناعي والصعوبات المتعددة</p>
+        
+        <div class="options-box">
+            <div class="select-group">
+                <label>👤 الشخصية:</label>
+                <select id="charSelect">
+                    <option value="soldier">البطل السريع</option>
+                    <option value="sniper">القناص الدقيق</option>
+                </select>
+            </div>
 
-    <div class="canvas-container">
-        <canvas id="gameCanvas" width="600" height="200"></canvas>
-        <button id="restartBtn" onclick="restartGame()">إعادة المحاولة 🔄</button>
+            <div class="select-group">
+                <label>🔫 السلاح:</label>
+                <select id="weaponSelect">
+                    <option value="pistol">مسدس خفيف</option>
+                    <option value="rifle">رشاش سريع</option>
+                    <option value="shotgun">شوتجان واسع</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label>🔥 الصعوبة:</label>
+                <select id="difficultySelect">
+                    <option value="easy">سهل (Easy)</option>
+                    <option value="normal" selected>عادي (Normal)</option>
+                    <option value="hard">صعب (Hard)</option>
+                    <option value="extreme">متطرف (Extreme)</option>
+                </select>
+            </div>
+
+            <div class="select-group">
+                <label>🔊 الموسيقى:</label>
+                <select id="audioSelect" onchange="toggleAudio(this.value)">
+                    <option value="on">مفعل</option>
+                    <option value="off">صامت</option>
+                </select>
+            </div>
+        </div>
+
+        <button class="menu-btn" onclick="startGame()">ابلاي (PLAY) 🚀</button>
     </div>
 
-    <div class="instructions">
-        اضغط على <strong>المسافة (Space)</strong> أو انقر على الشاشة للقفز فوق الصبار!
+    <!-- واجهة اللعب -->
+    <div id="gameUI">
+        <div class="hud-top">
+            <div class="hud-row">
+                <div class="hud-box">النقاط: <span id="score">0</span></div>
+                <div class="hud-box" style="background: #8b5cf6;">المستوى: <span id="level">1</span></div>
+            </div>
+            <div id="xpContainer">
+                <div id="xpBar"></div>
+            </div>
+        </div>
+
+        <div id="crosshair">⌖</div>
+        <div id="scopeOverlay"></div>
+
+        <div class="game-controls">
+            <button class="control-btn" id="scopeBtn" onclick="toggleScope()">🔭 سكوب</button>
+            <button class="control-btn" id="shootBtn" onclick="shoot()">🔥 أطلق</button>
+        </div>
     </div>
+
+    <!-- شاشة الخسارة -->
+    <div id="gameOverScreen" class="screen" style="display: none; background: linear-gradient(135deg, #7f1d1d, #991b1b);">
+        <h1 style="color: #f87171; font-size: 45px; text-shadow: 2px 2px 0px #000;">لقد خسرت يا اهبل</h1>
+        <p id="finalScoreText" style="font-size: 20px; margin-bottom: 20px; color: #fef08a; font-weight: bold;"></p>
+        <button class="menu-btn" style="background: #eab308; box-shadow: 0 5px 0px #ca8a04;" onclick="returnToMenu()">إعادة المحاولة 🔄</button>
+    </div>
+
+    <audio id="bgMusic" loop>
+        <source src="https://www.bensound.com/bensound-music/bensound-cute.mp3" type="audio/mp3">
+    </audio>
 
     <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
-        const scoreEl = document.getElementById("score");
-        const restartBtn = document.getElementById("restartBtn");
-
+        let scene, camera, renderer;
+        let bots = [];
         let score = 0;
-        let gameSpeed = 5;
-        let gameState = "PLAYING"; // PLAYING, GAMEOVER
+        let level = 1;
+        let xp = 0;
+        let maxXp = 500;
+        let difficultyMultiplier = 1.0;
+        let isGameOver = false;
+        let isScoped = false;
+        let audioEnabled = true;
+        let gunMesh = null;
 
-        // خصائص الديناصور
-        let dino = {
-            x: 50,
-            y: 140,
-            width: 30,
-            height: 40,
-            dy: 0,
-            jumpPower: -10,
-            gravity: 0.6,
-            grounded: true
-        };
+        const bgMusic = document.getElementById("bgMusic");
+        bgMusic.volume = 0.2;
 
-        // مصفوفة العوائق (الصبار)
-        let obstacles = [];
-        let obstacleTimer = 0;
+        function toggleAudio(val) {
+            audioEnabled = (val === "on");
+            if(audioEnabled) bgMusic.play().catch(() => {});
+            else bgMusic.pause();
+        }
 
-        // تبيين أزرار التحكم
-        window.addEventListener("keydown", (e) => {
-            if (e.code === "Space" || e.code === "ArrowUp") {
-                e.preventDefault();
-                jump();
-            }
-        });
+        function startGame() {
+            // تحديد معامل الصعوبة بناءً على الاختيار
+            const diff = document.getElementById("difficultySelect").value;
+            if (diff === 'easy') difficultyMultiplier = 0.7;
+            else if (diff === 'normal') difficultyMultiplier = 1.0;
+            else if (diff === 'hard') difficultyMultiplier = 1.5;
+            else if (diff === 'extreme') difficultyMultiplier = 2.2;
 
-        // دعم اللمس للتحكم عبر الهاتف
-        canvas.addEventListener("touchstart", (e) => {
-            e.preventDefault();
-            jump();
-        });
+            document.getElementById("mainMenu").style.display = "none";
+            document.getElementById("gameUI").style.display = "block";
 
-        function jump() {
-            if (dino.grounded && gameState === "PLAYING") {
-                dino.dy = dino.jumpPower;
-                dino.grounded = false;
+            if (audioEnabled) bgMusic.play().catch(() => {});
+
+            if (!scene) {
+                init3D();
+            } else {
+                resetGameData();
             }
         }
 
-        function restartGame() {
-            score = 0;
-            gameSpeed = 5;
-            obstacles = [];
-            obstacleTimer = 0;
-            dino.y = 140;
-            dino.dy = 0;
-            dino.grounded = true;
-            gameState = "PLAYING";
-            restartBtn.style.display = "none";
-            scoreEl.innerText = score;
+        function init3D() {
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x38bdf8);
+
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 1.6, 5);
+
+            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+            scene.add(ambientLight);
+
+            // أرضية العالم
+            const floorGeo = new THREE.PlaneGeometry(80, 80);
+            const floorMat = new THREE.MeshBasicMaterial({ color: 0x22c55e });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            scene.add(floor);
+
+            // جدار الطخ الخلفي
+            const wallGeo = new THREE.PlaneGeometry(80, 30);
+            const wallMat = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+            const wall = new THREE.Mesh(wallGeo, wallMat);
+            wall.position.set(0, 15, -30);
+            scene.add(wall);
+
+            updateGunModel();
+
+            for (let i = 0; i < 4; i++) {
+                createBot();
+            }
+
+            window.addEventListener('resize', onWindowResize);
+            animate();
         }
 
-        function update() {
-            if (gameState !== "PLAYING") return;
+        function updateGunModel() {
+            if (gunMesh) camera.remove(gunMesh);
 
-            // زيادة النقاط والسرعة تدريجياً
-            score++;
-            if (score % 100 === 0) {
-                gameSpeed += 0.5;
+            const weaponType = document.getElementById("weaponSelect").value;
+            let gunColor = 0xf59e0b;
+            let width = 0.2, height = 0.2, length = 0.8;
+
+            if(weaponType === 'rifle') { length = 1.2; gunColor = 0x6366f1; } 
+            else if(weaponType === 'shotgun') { length = 1.0; width = 0.35; gunColor = 0xef4444; }
+
+            const gunGeo = new THREE.BoxGeometry(width, height, length);
+            const gunMat = new THREE.MeshBasicMaterial({ color: gunColor });
+            gunMesh = new THREE.Mesh(gunGeo, gunMat);
+            gunMesh.position.set(0.3, -0.28, -0.6);
+            camera.add(gunMesh);
+            scene.add(camera);
+        }
+
+        function createBot() {
+            const botGeo = new THREE.BoxGeometry(1.1, 1.7, 1.1);
+            const botColors = [0xfacc15, 0xa855f7, 0x3b82f6, 0x14b8a6];
+            const botMat = new THREE.MeshBasicMaterial({ color: botColors[Math.floor(Math.random() * botColors.length)] });
+            
+            const bot = new THREE.Mesh(botGeo, botMat);
+            bot.position.x = (Math.random() - 0.5) * 20;
+            bot.position.y = 0.85;
+            bot.position.z = -Math.random() * 18 - 5;
+            
+            // خصائص الذكاء الاصطناعي المتقدمة لكل بوت
+            bot.baseSpeed = (0.015 + Math.random() * 0.015) * difficultyMultiplier + (level - 1) * 0.003;
+            bot.aiTimer = Math.random() * 100; // للتحكم بحركة التموج والتفادي
+            bot.aiPattern = Math.floor(Math.random() * 3); // نمط حركة ذكي مختلف
+
+            scene.add(bot);
+            bots.push(bot);
+        }
+
+        // تأثير الطخ
+        function createSplatter(x, y, z, isWall = false) {
+            const splatterGeo = new THREE.CircleGeometry(0.35, 8);
+            const splatterColors = [0xffffff, 0xffff00, 0x00ffff, 0xff00ff, 0x00ff00];
+            const splatterMat = new THREE.MeshBasicMaterial({ 
+                color: splatterColors[Math.floor(Math.random() * splatterColors.length)], 
+                side: THREE.DoubleSide 
+            });
+            const splatter = new THREE.Mesh(splatterGeo, splatterMat);
+
+            if (isWall) {
+                splatter.position.set(x, y, -29.9);
+            } else {
+                splatter.position.set(x, 0.02, z);
+                splatter.rotation.x = -Math.PI / 2;
             }
-            scoreEl.innerText = Math.floor(score / 5);
+            scene.add(splatter);
+        }
 
-            // تطبيق الجاذبية على الديناصور
-            dino.dy += dino.gravity;
-            dino.y += dino.dy;
+        function toggleScope() {
+            isScoped = !isScoped;
+            const scopeOverlay = document.getElementById("scopeOverlay");
+            scopeOverlay.style.display = isScoped ? "block" : "none";
+            camera.fov = isScoped ? 30 : 75;
+            camera.updateProjectionMatrix();
+        }
 
-            // منع الديناصور من السقوط تحت الأرض
-            if (dino.y > 140) {
-                dino.y = 140;
-                dino.dy = 0;
-                dino.grounded = true;
+        function shoot() {
+            if (isGameOver) return;
+
+            if (gunMesh) {
+                gunMesh.position.z += 0.1;
+                setTimeout(() => gunMesh.position.z -= 0.1, 80);
             }
 
-            // توليد الصبار (العوائق)
-            obstacleTimer++;
-            if (obstacleTimer > Math.random() * 50 + 70) {
-                obstacles.push({
-                    x: canvas.width,
-                    y: 145,
-                    width: 20,
-                    height: 35
-                });
-                obstacleTimer = 0;
+            createSplatter(camera.position.x + (Math.random() - 0.5) * 4, 0, camera.position.z - 3, false);
+
+            for (let i = bots.length - 1; i >= 0; i--) {
+                let bot = bots[i];
+                if (camera.position.distanceTo(bot.position) < 20) {
+                    createSplatter(bot.position.x, 1, 0, true);
+                    createSplatter(bot.position.x, 0, bot.position.z, false);
+
+                    scene.remove(bot);
+                    bots.splice(i, 1);
+                    
+                    score += 100 * difficultyMultiplier;
+                    xp += 100;
+
+                    if (xp >= maxXp) {
+                        xp = 0;
+                        level++;
+                        maxXp += 250;
+                        document.getElementById("level").innerText = level;
+                    }
+
+                    let xpPercent = (xp / maxXp) * 100;
+                    document.getElementById("xpBar").style.width = xpPercent + "%";
+                    document.getElementById("score").innerText = Math.floor(score);
+
+                    setTimeout(createBot, 500);
+                    break;
+                }
             }
+        }
 
-            // تحريك الصبار والتحقق من الاصطدام
-            for (let i = obstacles.length - 1; i >= 0; i--) {
-                obstacles[i].x -= gameSpeed;
+        function animate() {
+            if (isGameOver) return;
+            requestAnimationFrame(animate);
 
-                // فحص الاصطدام بدقة (Hitbox)
-                if (
-                    dino.x < obstacles[i].x + obstacles[i].width &&
-                    dino.x + dino.width > obstacles[i].x &&
-                    dino.y < obstacles[i].y + obstacles[i].height &&
-                    dino.y + dino.height > obstacles[i].y
-                ) {
-                    gameState = "GAMEOVER";
-                    restartBtn.style.display = "block";
+            // تحديث ذكاء الأعداء الاصطناعي في كل إطار
+            bots.forEach(bot => {
+                bot.position.z += bot.baseSpeed;
+                bot.aiTimer += 0.05;
+
+                // أنماط الذكاء الاصطناعي للحركة الجانبية (المناورة وتفادي التصويب)
+                if (bot.aiPattern === 0) {
+                    // حركة متعرجة بسيطة يميناً ويساراً
+                    bot.position.x += Math.sin(bot.aiTimer) * 0.04;
+                } else if (bot.aiPattern === 1) {
+                    // حركة اقتراب سريعة مع التفاف خفيف
+                    bot.position.x += Math.cos(bot.aiTimer * 1.5) * 0.06;
+                } else {
+                    // مطاردة مباشرة ذكية نحو مركز اللاعب
+                    if (bot.position.x < camera.position.x) bot.position.x += 0.015;
+                    else bot.position.x -= 0.015;
                 }
 
-                // إزالة الصبار الذي خرج من الشاشة
-                if (obstacles[i].x + obstacles[i].width < 0) {
-                    obstacles.splice(i, 1);
+                // إذا وصل البوت للاعب تنتهي اللعبة
+                if (bot.position.z > camera.position.z - 0.4) {
+                    triggerGameOver();
                 }
-            }
-        }
-
-        function draw() {
-            // مسح الشاشة
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // رسم خط الأرض
-            ctx.strokeStyle = "#535353";
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.moveTo(0, 180);
-            ctx.lineTo(canvas.width, 180);
-            ctx.stroke();
-
-            // رسم الديناصور (مربع كلاسيكي بلون رمادي داكن يماثل تصميم المتصفح)
-            ctx.fillStyle = "#535353";
-            ctx.fillRect(dino.x, dino.y, dino.width, dino.height);
-            // تفصيل رأس الديناصور البكسلي
-            ctx.fillRect(dino.x + 20, dino.y - 8, 12, 12);
-            ctx.fillStyle = "#fff"; // العين
-            ctx.fillRect(dino.x + 26, dino.y - 4, 3, 3);
-
-            // رسم الصبار
-            ctx.fillStyle = "#535353";
-            obstacles.forEach(obs => {
-                ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
             });
 
-            // شاشة الخسارة مع الجملة المطلوبة
-            if (gameState === "GAMEOVER") {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                ctx.fillStyle = "#535353";
-                ctx.font = "bold 20px 'Courier New'";
-                ctx.fillText("لقد خسرت يا اهبل", canvas.width / 2 - 110, canvas.height / 2 - 15);
-            }
+            renderer.render(scene, camera);
         }
 
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
+        function triggerGameOver() {
+            isGameOver = true;
+            bgMusic.pause();
+            document.getElementById("gameUI").style.display = "none";
+            document.getElementById("finalScoreText").innerText = `مجموع نقاطك النهائية: ${Math.floor(score)} (المستوى: ${level})`;
+            document.getElementById("gameOverScreen").style.display = "flex";
         }
 
-        loop();
+        function resetGameData() {
+            isGameOver = false;
+            score = 0;
+            level = 1;
+            xp = 0;
+            maxXp = 500;
+            isScoped = false;
+            document.getElementById("scopeOverlay").style.display = "none";
+            camera.fov = 75;
+            camera.updateProjectionMatrix();
+            document.getElementById("score").innerText = score;
+            document.getElementById("level").innerText = level;
+            document.getElementById("xpBar").style.width = "0%";
+            document.getElementById("gameOverScreen").style.display = "none";
+            document.getElementById("gameUI").style.display = "block";
+
+            if (audioEnabled) bgMusic.play().catch(() => {});
+            updateGunModel();
+
+            bots.forEach(bot => scene.remove(bot));
+            bots = [];
+            for (let i = 0; i < 4; i++) createBot();
+        }
+
+        function returnToMenu() {
+            document.getElementById("gameOverScreen").style.display = "none";
+            document.getElementById("mainMenu").style.display = "flex";
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
     </script>
-
 </body>
 </html>
-
