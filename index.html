@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق التواصل الاجتماعي</title>
+    <title>منصة أشرطة الشاحنات والأطنان</title>
     <style>
         * {
             box-sizing: border-box;
@@ -21,23 +21,38 @@
             align-items: center;
         }
 
-        /* --- شاشة إدخال رقم الهاتف --- */
+        .container {
+            width: 100%;
+            max-width: 420px;
+            height: 100vh;
+            background-color: #1e2631;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+
+        /* 1. شاشة تسجيل الدخول */
         #login-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #1e2631;
             display: flex;
             justify-content: center;
             align-items: center;
-            width: 100%;
-            height: 100vh;
             padding: 20px;
+            z-index: 10;
         }
 
         .modal-card {
-            background-color: #1e2631;
+            background-color: #12181f;
             border-radius: 16px;
             padding: 28px 24px;
             width: 100%;
-            max-width: 380px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
             text-align: center;
             border: 1px solid #2d3748;
         }
@@ -68,7 +83,7 @@
             padding: 12px 14px;
             font-size: 18px;
             letter-spacing: 2px;
-            background-color: #12181f;
+            background-color: #1e2631;
             color: #ffffff;
             border: 2px dashed #4a5568;
             border-radius: 8px;
@@ -100,19 +115,14 @@
             display: none;
         }
 
-        /* --- صفحة التواصل (تخفى في البدايه) --- */
-        #app-screen {
+        /* 2. الشاشة الرئيسية */
+        #home-screen {
             display: none;
-            width: 100%;
-            max-width: 480px;
-            height: 100vh;
             flex-direction: column;
-            background-color: #1e2631;
-            border-right: 1px solid #2d3748;
-            border-left: 1px solid #2d3748;
+            height: 100%;
         }
 
-        .app-header {
+        .header {
             padding: 16px;
             background-color: #12181f;
             display: flex;
@@ -121,141 +131,246 @@
             border-bottom: 1px solid #2d3748;
         }
 
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .header h3 {
+            font-size: 15px;
+            color: #38a169;
         }
 
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #2e7d32;
-            border-radius: 50%;
+        .action-banner {
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
+            padding: 14px;
+            margin: 12px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .action-banner h4 {
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .action-banner p {
+            font-size: 12px;
+            color: #d4edda;
+            margin-bottom: 10px;
+        }
+
+        .truck-btn {
+            background-color: #ffffff;
+            color: #1b5e20;
+            border: none;
+            padding: 7px 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .content-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 12px 12px 12px;
+        }
+
+        .section-title {
+            font-size: 13px;
+            color: #a0aec0;
+            margin-bottom: 8px;
+        }
+
+        /* تصميم أشرطة الشاحنات المتاحة */
+        .truck-ticker-bar {
+            background-color: #12181f;
+            border: 1px solid #2d3748;
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ticker-top {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
+        }
+
+        .ticker-info {
+            font-size: 13px;
+            color: #e2e8f0;
+        }
+
+        .ticker-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .accept-btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
             font-weight: bold;
         }
 
-        .call-actions button {
+        .contact-box {
+            display: none;
+            background-color: #1e2631;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #68d391;
+            border: 1px dashed #38a169;
+            margin-top: 4px;
+        }
+
+        /* 3. شاشة إضافة شاحنة جديدة */
+        #form-screen {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .form-header {
+            padding: 14px 16px;
+            background-color: #12181f;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #2d3748;
+        }
+
+        .back-btn {
             background: none;
             border: none;
             color: #38a169;
-            font-size: 20px;
+            font-size: 14px;
             cursor: pointer;
-            margin-right: 10px;
+            font-weight: bold;
         }
 
-        .chat-box {
+        .form-body {
+            padding: 20px;
             flex: 1;
-            padding: 16px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
-        .message {
-            max-width: 75%;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .message.received {
-            background-color: #2d3748;
-            align-self: flex-start;
-            border-bottom-right-radius: 2px;
-        }
-
-        .message.sent {
-            background-color: #2e7d32;
-            align-self: flex-end;
-            border-bottom-left-radius: 2px;
-        }
-
-        .chat-input-area {
-            padding: 12px;
-            background-color: #12181f;
+        .form-group {
             display: flex;
-            gap: 8px;
-            align-items: center;
-            border-top: 1px solid #2d3748;
+            flex-direction: column;
+            gap: 6px;
+            text-align: right;
         }
 
-        .chat-input-area input {
-            flex: 1;
-            padding: 10px 14px;
-            background-color: #1e2631;
+        .form-group label {
+            font-size: 13px;
+            color: #a0aec0;
+        }
+
+        .form-group input {
+            padding: 10px 12px;
+            background-color: #12181f;
             border: 1px solid #2d3748;
-            border-radius: 20px;
+            border-radius: 8px;
             color: white;
+            font-size: 14px;
             outline: none;
-        }
-
-        .send-btn, .mic-btn {
-            background: #2e7d32;
-            border: none;
-            color: white;
-            padding: 10px 14px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-
-        .mic-btn {
-            background-color: #4a5568;
         }
     </style>
 </head>
 <body>
 
-    <!-- 1. شاشة تسجيل الدخول برقم الهاتف -->
-    <div id="login-screen">
-        <div class="modal-card">
-            <h2>نرجو إدخال رقم هاتفك الأردني</h2>
-            <p class="subtitle">(مثال: 07x xxxxxx)</p>
+    <div class="container">
 
-            <div class="input-container">
-                <input type="tel" id="phoneNumber" class="phone-input" value="07" maxlength="10">
-                <img class="flag-icon" src="https://flagcdn.com/w40/jo.png" alt="علم الأردن">
+        <!-- 1. شاشة تسجيل الدخول -->
+        <div id="login-screen">
+            <div class="modal-card">
+                <h2>دخول شبكة الشاحنات</h2>
+                <p class="subtitle">أدخل رقم هاتفك الأردني للمتابعة</p>
+
+                <div class="input-container">
+                    <input type="tel" id="phoneNumber" class="phone-input" value="07" maxlength="10">
+                    <img class="flag-icon" src="https://flagcdn.com/w40/jo.png" alt="علم الأردن">
+                </div>
+
+                <div id="errorMsg" class="error-msg">يرجى إدخال رقم أردني صحيح (10 أرقام)</div>
+
+                <button class="btn" onclick="login()">تسجيل الدخول</button>
+            </div>
+        </div>
+
+        <!-- 2. الشاشة الرئيسية وعرض الأشرطة -->
+        <div id="home-screen">
+            <div class="header">
+                <h3>أشرطة طلبات الشاحنات والأطنان</h3>
+                <span id="user-phone-display" style="font-size: 11px; color: #a0aec0;"></span>
             </div>
 
-            <div id="errorMsg" class="error-msg">يرجى إدخال رقم أردني صحيح (10 أرقام)</div>
+            <div class="action-banner">
+                <h4>إضافة طلب شاحنة جديد</h4>
+                <p>سجل رقم شاحنتك وعدد الأطنان لتظهر في أشرطة البث لجميع المستخدمين</p>
+                <button class="truck-btn" onclick="openFormScreen()">+ أضف شاحنتك الآن</button>
+            </div>
 
-            <button class="btn" onclick="login()">تأكيد والدخول</button>
-        </div>
-    </div>
-
-    <!-- 2. واجهة التواصل والكلام -->
-    <div id="app-screen">
-        <div class="app-header">
-            <div class="user-info">
-                <div class="avatar">👤</div>
-                <div>
-                    <h4 id="display-user">مستخدم جديد</h4>
-                    <small style="color: #38a169;">متصل الآن</small>
+            <div class="content-area">
+                <p class="section-title">أشرطة الشاحنات المتاحة حالياً:</p>
+                <div id="trucksTickerList">
+                    <!-- سيتم تعبئة الأشرطة هنا برمجياً -->
                 </div>
             </div>
-            <div class="call-actions">
-                <button title="اتصال صوتي" onclick="startVoiceCall()">📞</button>
-                <button title="اتصال فيديو" onclick="startVideoCall()">📹</button>
+        </div>
+
+        <!-- 3. شاشة إدخال بيانات الشاحنة -->
+        <div id="form-screen">
+            <div class="form-header">
+                <button class="back-btn" onclick="goBackToHome()">← إلغاء</button>
+                <h4 style="font-size: 14px;">طلب شاحنة وأطنان جديد</h4>
+                <span></span>
+            </div>
+
+            <div class="form-body">
+                <div class="form-group">
+                    <label>رقم لوحة الشاحنة:</label>
+                    <input type="text" id="truckPlate" placeholder="مثال: 12-44552">
+                </div>
+
+                <div class="form-group">
+                    <label>كم عدد الأطنان المطلوبة/المتاحة؟</label>
+                    <input type="number" id="truckTons" placeholder="مثال: 30">
+                </div>
+
+                <div class="form-group">
+                    <label>المسار أو البضاعة:</label>
+                    <input type="text" id="truckRoute" placeholder="مثال: عمان إلى العقبة (حديد/حبوب)">
+                </div>
+
+                <div class="form-group">
+                    <label>رقم التواصل الخاص بك:</label>
+                    <input type="tel" id="truckContact" placeholder="07xxxxxxxx">
+                </div>
+
+                <button class="btn" onclick="submitTruckTicker()" style="margin-top: 10px;">نشر كشريط للجميع</button>
             </div>
         </div>
 
-        <div class="chat-box" id="chatBox">
-            <div class="message received">أهلاً بك في التطبيق! يمكنك الآن التواصل مع الآخرين كتابياً وصوتياً.</div>
-        </div>
-
-        <div class="chat-input-area">
-            <button class="mic-btn" onclick="toggleMic()" title="تسجيل صوتي">🎙️</button>
-            <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا..." onkeypress="handleKeyPress(event)">
-            <button class="send-btn" onclick="sendMessage()">إرسال</button>
-        </div>
     </div>
 
     <script>
+        // قاعدة بيانات وهمية للأشرطة الحالية ليراها الجميع
+        let trucksTickers = [
+            { plate: "أردن 12-8831", tons: "35 طن", route: "عمان - إربد", contact: "0791122334", status: "متاح" },
+            { plate: "أردن 5-9920", tons: "25 طن", route: "الزرقاء - المفرق", contact: "0785566778", status: "متاح" }
+        ];
+
         function login() {
             const phone = document.getElementById('phoneNumber').value.trim();
             const errorMsg = document.getElementById('errorMsg');
@@ -264,43 +379,90 @@
             if (jordanRegex.test(phone)) {
                 errorMsg.style.display = 'none';
                 document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'flex';
-                document.getElementById('display-user').innerText = "عضو: " + phone;
+                document.getElementById('home-screen').style.display = 'flex';
+                document.getElementById('user-phone-display').innerText = phone;
+                renderTickers();
             } else {
                 errorMsg.style.display = 'block';
             }
         }
 
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (text !== "") {
-                const chatBox = document.getElementById('chatBox');
-                const msgDiv = document.createElement('div');
-                msgDiv.className = 'message sent';
-                msgDiv.innerText = text;
-                chatBox.appendChild(msgDiv);
-                input.value = '';
-                chatBox.scrollTop = chatBox.scrollHeight;
+        function openFormScreen() {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('form-screen').style.display = 'flex';
+        }
+
+        function goBackToHome() {
+            document.getElementById('form-screen').style.display = 'none';
+            document.getElementById('home-screen').style.display = 'flex';
+        }
+
+        function submitTruckTicker() {
+            const plate = document.getElementById('truckPlate').value.trim();
+            const tons = document.getElementById('truckTons').value.trim();
+            const route = document.getElementById('truckRoute').value.trim();
+            const contact = document.getElementById('truckContact').value.trim();
+
+            if (!plate || !tons || !route || !contact) {
+                alert("يرجى تعبئة كافة الحقول بدقة.");
+                return;
             }
+
+            // إضافة الطلب الجديد في قمة القائمة ليظهر كشريط جديد للجميع
+            trucksTickers.unshift({
+                plate: plate,
+                tons: tons + " طن",
+                route: route,
+                contact: contact,
+                status: "متاح"
+            });
+
+            // تفريغ الحقول والعودة
+            document.getElementById('truckPlate').value = '';
+            document.getElementById('truckTons').value = '';
+            document.getElementById('truckRoute').value = '';
+            document.getElementById('truckContact').value = '';
+
+            goBackToHome();
+            renderTickers();
         }
 
-        function handleKeyPress(e) {
-            if (e.key === 'Enter') sendMessage();
+        function renderTickers() {
+            const container = document.getElementById('trucksTickerList');
+            container.innerHTML = '';
+
+            trucksTickers.forEach((item, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'truck-ticker-bar';
+
+                bar.innerHTML = `
+                    <div class="ticker-top">
+                        <div class="ticker-info">
+                            🚛 <strong>شاحنة:</strong> ${item.plate} | ⚖️ <strong>${item.tons}</strong> | 🛣️ ${item.route}
+                        </div>
+                        <div class="ticker-actions">
+                            <button class="accept-btn" id="btn-${index}" onclick="acceptAndShowContact(${index})">قبول وطلب التواصل</button>
+                        </div>
+                    </div>
+                    <div class="contact-box" id="contact-${index}">
+                        📞 رقم التواصل المباشر: <strong>${item.contact}</strong>
+                    </div>
+                `;
+                container.appendChild(bar);
+            });
         }
 
-        function startVoiceCall() {
-            alert('جاري بدء الاتصال الصوتي...');
-        }
-
-        function startVideoCall() {
-            alert('جاري بدء اتصال الفيديو...');
-        }
-
-        function toggleMic() {
-            alert('جاري تسجيل الصوت...');
+        function acceptAndShowContact(index) {
+            const contactBox = document.getElementById(`contact-${index}`);
+            const btn = document.getElementById(`btn-${index}`);
+            
+            contactBox.style.display = 'block';
+            btn.innerText = 'تم القبول ✓';
+            btn.style.backgroundColor = '#1a365d';
+            btn.disabled = true;
         }
     </script>
 
 </body>
 </html>
+
