@@ -1,28 +1,171 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق العمل</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      background-color: #f4f7f6;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد رقم الهاتف</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #12181f;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #1e2631;
+            border-radius: 16px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid #2d3748;
+        }
+
+        .modal-card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #f0f4f8;
+            line-height: 1.5;
+        }
+
+        .modal-card p.subtitle {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            direction: ltr; /* لضبط الاتجاه من اليسار لليمين أثناء الكتابة */
+        }
+
+        .phone-input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            background-color: #12181f;
+            color: #ffffff;
+            border: 2px dashed #4a5568;
+            border-radius: 8px;
+            outline: none;
+            text-align: left;
+            transition: border-color 0.3s;
+        }
+
+        .phone-input:focus {
+            border-color: #38a169;
+        }
+
+        .flag-icon {
+            width: 32px;
+            height: 22px;
+            border-radius: 3px;
+            object-fit: cover;
+            border: 1px solid #4a5568;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            direction: rtl;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-confirm {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .btn-skip {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .error-msg {
+            color: #e53e3e;
+            font-size: 13px;
+            margin-top: -12px;
+            margin-bottom: 12px;
+            display: none;
+            text-align: right;
+            direction: rtl;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- ضع محتوى موقعك هنا -->
+    <div class="modal-card">
+        <h2>نرجو إدخال رقم هاتفك الأردني</h2>
+        <p class="subtitle">(مثال: 07x xxxxxx)</p>
+
+        <div class="input-container">
+            <input type="tel" id="phoneNumber" class="phone-input" value="07" maxlength="10">
+            <!-- علم الأردن -->
+            <img class="flag-icon" src="https://flagcdn.com/w40/jo.png" alt="علم الأردن">
+        </div>
+
+        <div id="errorMsg" class="error-msg">يرجى إدخال رقم أردني صحيح يتكون من 10 أرقام ويبدأ بـ 07</div>
+
+        <div class="button-group">
+            <button class="btn btn-confirm" onclick="validatePhone()">تأكيد</button>
+            <button class="btn btn-skip" onclick="skipStep()">تخطي</button>
+        </div>
+    </div>
+
+    <script>
+        function validatePhone() {
+            const input = document.getElementById('phoneNumber').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+
+            // تحقق من أن الرقم أردني صحيح (10 أرقام ويبدأ بـ 077 أو 078 أو 079)
+            const jordanRegex = /^07[789]\d{7}$/;
+
+            if (jordanRegex.test(input)) {
+                errorMsg.style.display = 'none';
+                alert('تم تأكيد الرقم بنجاح: ' + input);
+                // يمكنك توجيه المستخدم لصفحة أخرى هنا:
+                // window.location.href = "home.html";
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
+
+        function skipStep() {
+            alert('تم التخطي');
+        }
+    </script>
 
 </body>
 </html>
