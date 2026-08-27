@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TDT - لعبة الطخ بنمط بكسل ماين كرافت</title>
+    <title>TDT ULTIMATE - 8-Bit Pixel 3D Shooter Game</title>
     <style>
-        /* فرض نمط البكسل الحاد لجميع العناصر */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -16,7 +15,7 @@
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #0f172a;
+            background-color: #050505;
             font-family: 'Courier New', Courier, monospace;
             text-align: center;
         }
@@ -26,47 +25,57 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: #1e293b;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
             border: 8px solid #334155;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 30;
+            z-index: 40;
             color: white;
+            overflow-y: auto;
+            padding: 20px;
         }
         h1 {
-            font-size: 45px;
+            font-size: 48px;
             color: #facc15;
             margin-bottom: 5px;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             text-shadow: 4px 4px 0px #000;
+        }
+        .subtitle {
+            color: #38bdf8;
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0px #000;
         }
         .menu-btn {
             background: #16a34a;
             color: white;
             border: 4px solid #000;
-            padding: 12px 30px;
+            padding: 12px 35px;
             font-size: 18px;
             font-weight: bold;
-            border-radius: 0px; /* بكسل حاد */
             cursor: pointer;
             margin: 10px;
             font-family: 'Courier New', Courier, monospace;
-            box-shadow: 0 6px 0px #14532d;
+            box-shadow: 0 5px 0px #14532d;
             transition: 0.05s;
         }
         .menu-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 2px 0px #14532d;
+            box-shadow: 0 1px 0px #14532d;
         }
         .options-box {
-            background: #0f172a;
+            background: #090d16;
             padding: 15px 20px;
             border: 4px solid #475569;
             margin-bottom: 15px;
             text-align: right;
             max-width: 420px;
+            width: 100%;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
         .select-group {
             margin: 10px 0;
@@ -85,7 +94,6 @@
             color: #0f172a;
             font-weight: bold;
             border: 3px solid #000;
-            border-radius: 0px;
             outline: none;
             cursor: pointer;
         }
@@ -107,7 +115,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
             padding: 0 20px;
         }
         .hud-row {
@@ -120,18 +128,16 @@
             color: #fff;
             font-size: 13px;
             font-weight: bold;
-            background: #1e293b;
+            background: #0f172a;
             padding: 6px 12px;
             border: 3px solid #000;
             box-shadow: 0 3px 0px #000;
         }
-        
-        /* أشرطة بكسلية بارزة */
         .bar-container {
             width: 100%;
             max-width: 500px;
             height: 14px;
-            background: #0f172a;
+            background: #020617;
             border: 3px solid #000;
             overflow: hidden;
             box-shadow: 0 3px 0px rgba(0,0,0,0.5);
@@ -140,115 +146,97 @@
             width: 100%;
             height: 100%;
             background: #22c55e;
-            transition: width 0.15s steps(10);
+            transition: width 0.1s steps(10);
         }
         #xpBar {
             width: 0%;
             height: 100%;
             background: #3b82f6;
-            transition: width 0.2s steps(10);
+            transition: width 0.1s steps(10);
         }
 
-        /* علامة القنص البكسلية */
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             color: #ef4444;
-            font-size: 30px;
+            font-size: 32px;
             font-weight: bold;
             pointer-events: none;
             text-shadow: 2px 2px 0px #000;
             z-index: 25;
         }
 
-        /* منظار السكوب الكلاسيكي */
-        #scopeOverlay {
-            display: none;
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 15;
-        }
-        .scope-vignette {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            box-shadow: inset 0 0 150px 100px rgba(0, 0, 0, 0.98);
-        }
-        .scope-crosshair-h {
-            position: absolute;
-            top: 50%; left: 10%; width: 80%; height: 4px;
-            background: #ef4444;
-            transform: translateY(-50%);
-        }
-        .scope-crosshair-v {
-            position: absolute;
-            top: 10%; left: 50%; width: 4px; height: 80%;
-            background: #ef4444;
-            transform: translateX(-50%);
-        }
-
+        /* لوحة التحكم الكاملة والمتقدمة */
         .game-controls {
             position: absolute;
-            bottom: 25px;
+            bottom: 20px;
             width: 100%;
             display: flex;
             justify-content: space-between;
-            padding: 0 30px;
+            padding: 0 20px;
             box-sizing: border-box;
             pointer-events: auto;
             z-index: 20;
         }
-        .control-btn {
-            width: 75px;
-            height: 75px;
+        .dpad {
+            display: grid;
+            grid-template-columns: repeat(3, 50px);
+            grid-template-rows: repeat(2, 50px);
+            gap: 5px;
+        }
+        .ctrl-btn {
+            background: #1e293b;
             border: 4px solid #000;
-            border-radius: 0px; /* بكسل حاد */
             color: white;
-            font-size: 14px;
             font-weight: bold;
-            outline: none;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 5px 0px #000;
+            box-shadow: 0 4px 0px #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .control-btn:active {
-            transform: translateY(4px);
+        .ctrl-btn:active {
+            transform: translateY(3px);
             box-shadow: 0 1px 0px #000;
+            background: #334155;
         }
-        #shootBtn { background: #dc2626; }
-        #scopeBtn { background: #0284c7; }
+        #shootBtn { background: #dc2626; width: 75px; height: 75px; }
+        #flyBtn { background: #0284c7; width: 65px; height: 65px; }
     </style>
-    <!-- مكتبة Three.js الخفيفة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
     <!-- الشاشة الرئيسية -->
     <div id="mainMenu" class="screen">
-        <h1>TDT</h1>
-        <p style="color: #facc15; margin-bottom: 15px; font-size: 14px; font-weight: bold;">عالم الطخ البكسلي (ماين كرافت ستايل)</p>
+        <h1>TDT ULTIMATE</h1>
+        <div class="subtitle">لعبة الطخ البكسلية الخرافية (إصدار 1500 سطر مطور)</div>
         
         <div class="options-box">
             <div class="select-group">
-                <label>👤 الشخصية:</label>
+                <label>👤 اختر البطل:</label>
                 <select id="charSelect">
                     <option value="soldier">البطل السريع</option>
-                    <option value="sniper">القناص الدقيق</option>
+                    <option value="sniper">القناص المحترف</option>
+                    <option value="tank">الدبابة الفولاذية</option>
                 </select>
             </div>
 
             <div class="select-group">
-                <label>🔫 السلاح:</label>
+                <label>🔫 اختر السلاح:</label>
                 <select id="weaponSelect">
                     <option value="pistol">مسدس كلاسيكي</option>
-                    <option value="rifle">رشاش بكسل</option>
-                    <option value="shotgun">شوتجان ثقيل</option>
+                    <option value="rifle">رشاش بكسل سريع</option>
+                    <option value="shotgun">شوتجان مدمر</option>
+                    <option value="bazooka">بازوكا ثقيلة</option>
                 </select>
             </div>
 
             <div class="select-group">
-                <label>🔥 الصعوبة:</label>
+                <label>🔥 مستوى الصعوبة:</label>
                 <select id="difficultySelect">
                     <option value="easy">سهل (Easy)</option>
                     <option value="normal" selected>عادي (Normal)</option>
@@ -258,7 +246,7 @@
             </div>
 
             <div class="select-group">
-                <label>🔊 الموسيقى:</label>
+                <label>🔊 الموسيقى والأصوات:</label>
                 <select id="audioSelect" onchange="toggleAudio(this.value)">
                     <option value="on">مفعل</option>
                     <option value="off">صامت</option>
@@ -266,17 +254,18 @@
             </div>
         </div>
 
-        <button class="menu-btn" onclick="startGame()">ابلاي (PLAY) 🚀</button>
+        <button class="menu-btn" onclick="startGame()">ابلاي اللعبة (PLAY) 🚀</button>
     </div>
 
-    <!-- واجهة اللعب -->
+    <!-- واجهة اللعب الداخلية -->
     <div id="gameUI">
         <div class="hud-top">
             <div class="hud-row">
                 <div class="hud-box">النقاط: <span id="score">0</span></div>
                 <div class="hud-box">المستوى: <span id="level">1</span></div>
+                <div class="hud-box" id="weaponHud">مسدس</div>
             </div>
-            <div style="width: 100%; max-width: 500px; text-align: right; font-size: 10px; color: #fff; font-weight: bold;">صحة البطل (HP) - تتعبى فل مع كل طخة!</div>
+            <div style="width: 100%; max-width: 500px; text-align: right; font-size: 10px; color: #fff; font-weight: bold;">صحة البطل (HP) - تطخ عدداً.. دمك يصير فل 100%!</div>
             <div class="bar-container"><div id="hpBar"></div></div>
             <div style="width: 100%; max-width: 500px; text-align: right; font-size: 10px; color: #fff; font-weight: bold; margin-top: 2px;">مؤشر الخبرة (XP)</div>
             <div class="bar-container"><div id="xpBar"></div></div>
@@ -284,21 +273,27 @@
 
         <div id="crosshair">+</div>
 
-        <div id="scopeOverlay">
-            <div class="scope-vignette"></div>
-            <div class="scope-crosshair-h"></div>
-            <div class="scope-crosshair-v"></div>
-        </div>
-
+        <!-- أزرار التحكم الكاملة بالأسهم، الطيران وإطلاق النار -->
         <div class="game-controls">
-            <button class="control-btn" id="scopeBtn" onclick="toggleScope()">🔭 سكوب</button>
-            <button class="control-btn" id="shootBtn" onclick="shoot()">🔥 أطلق</button>
+            <div class="dpad">
+                <div></div>
+                <button class="ctrl-btn" onmousedown="movePlayer('forward')" ontouchstart="movePlayer('forward')">▲</button>
+                <div></div>
+                <button class="ctrl-btn" onmousedown="movePlayer('left')" ontouchstart="movePlayer('left')">◀</button>
+                <button class="ctrl-btn" onmousedown="movePlayer('back')" ontouchstart="movePlayer('back')">▼</button>
+                <button class="ctrl-btn" onmousedown="movePlayer('right')" ontouchstart="movePlayer('right')">▶</button>
+            </div>
+            
+            <div style="display: flex; gap: 8px; align-items: flex-end;">
+                <button class="ctrl-btn" id="flyBtn" onclick="toggleFly()">🚀 طيران</button>
+                <button class="ctrl-btn" id="shootBtn" onclick="shoot()">🔥 أطلق</button>
+            </div>
         </div>
     </div>
 
     <!-- شاشة الخسارة -->
     <div id="gameOverScreen" class="screen" style="display: none; background: #450a0a; border: 8px solid #7f1d1d;">
-        <h1 style="color: #f87171; font-size: 38px; text-shadow: 3px 3px 0px #000;">لقد خسرت يا اهبل</h1>
+        <h1 style="color: #f87171; font-size: 40px; text-shadow: 3px 3px 0px #000;">لقد خسرت يا اهبل</h1>
         <p id="finalScoreText" style="font-size: 18px; margin-bottom: 20px; color: #fef08a; font-weight: bold;"></p>
         <button class="menu-btn" style="background: #ca8a04; box-shadow: 0 5px 0px #713f12;" onclick="returnToMenu()">إعادة المحاولة 🔄</button>
     </div>
@@ -317,12 +312,14 @@
         let playerHp = 100;
         let difficultyMultiplier = 1.0;
         let isGameOver = false;
-        let isScoped = false;
+        let isFlying = false;
         let audioEnabled = true;
         let gunMesh = null;
+        let playerAngle = 0;
+        let currentWeapon = 'pistol';
 
         const bgMusic = document.getElementById("bgMusic");
-        bgMusic.volume = 0.2;
+        bgMusic.volume = 0.25;
 
         function toggleAudio(val) {
             audioEnabled = (val === "on");
@@ -335,7 +332,10 @@
             if (diff === 'easy') difficultyMultiplier = 0.7;
             else if (diff === 'normal') difficultyMultiplier = 1.0;
             else if (diff === 'hard') difficultyMultiplier = 1.5;
-            else if (diff === 'extreme') difficultyMultiplier = 2.2;
+            else if (diff === 'extreme') difficultyMultiplier = 2.3;
+
+            currentWeapon = document.getElementById("weaponSelect").value;
+            document.getElementById("weaponHud").innerText = document.getElementById("weaponSelect").options[document.getElementById("weaponSelect").selectedIndex].text;
 
             document.getElementById("mainMenu").style.display = "none";
             document.getElementById("gameUI").style.display = "block";
@@ -351,35 +351,31 @@
 
         function init3D() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x38bdf8); // سماء بكسلية زرقاء
+            scene.background = new THREE.Color(0x38bdf8);
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.set(0, 1.6, 5);
+            camera.position.set(0, 1.8, 6);
 
             renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance" });
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.4);
             scene.add(ambientLight);
 
-            // أرضية بنمط بكسل العشب (أخضر فاقع)
-            const floorGeo = new THREE.PlaneGeometry(80, 80);
-            const floorMat = new THREE.MeshBasicMaterial({ color: 0x16a34a });
+            // أرضية العالم بكسلية واسعة
+            const floorGeo = new THREE.PlaneGeometry(120, 120);
+            const floorMat = new THREE.MeshBasicMaterial({ color: 0x15803d });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            // جدار الخلفية البكسلي
-            const wallGeo = new THREE.PlaneGeometry(80, 30);
-            const wallMat = new THREE.MeshBasicMaterial({ color: 0x991b1b });
-            const wall = new THREE.Mesh(wallGeo, wallMat);
-            wall.position.set(0, 15, -30);
-            scene.add(wall);
+            // جدران بيئة اللعب البكسلية المحيطة
+            createEnvironmentWalls();
 
             updateGunModel();
 
-            for (let i = 0; i < 4; i++) {
+            for (let i = 0; i < 6; i++) {
                 createBot();
             }
 
@@ -387,45 +383,66 @@
             animate();
         }
 
+        function createEnvironmentWalls() {
+            const wallMat = new THREE.MeshBasicMaterial({ color: 0x475569 });
+            for(let i = -50; i <= 50; i += 25) {
+                const wallGeo = new THREE.BoxGeometry(4, 6, 4);
+                const wallBlock = new THREE.Mesh(wallGeo, wallMat);
+                wallBlock.position.set(i, 3, -50);
+                scene.add(wallBlock);
+
+                const wallBlock2 = new THREE.Mesh(wallGeo, wallMat);
+                wallBlock2.position.set(50, 3, i);
+                scene.add(wallBlock2);
+            }
+        }
+
         function updateGunModel() {
             if (gunMesh) camera.remove(gunMesh);
+            let gunColor = 0xb45309;
+            let length = 0.8;
 
-            const weaponType = document.getElementById("weaponSelect").value;
-            let gunColor = 0xb45309; // لون خشبي بكسل
-            let width = 0.25, height = 0.25, length = 0.8;
+            if(currentWeapon === 'rifle') { length = 1.2; gunColor = 0x334155; }
+            else if(currentWeapon === 'shotgun') { length = 1.0; gunColor = 0xb91c1c; }
+            else if(currentWeapon === 'bazooka') { length = 1.5; gunColor = 0xca8a04; }
 
-            if(weaponType === 'rifle') { length = 1.2; gunColor = 0x334155; } 
-            else if(weaponType === 'shotgun') { length = 1.0; width = 0.35; gunColor = 0xb91c1c; }
-
-            const gunGeo = new THREE.BoxGeometry(width, height, length);
+            const gunGeo = new THREE.BoxGeometry(0.3, 0.3, length);
             const gunMat = new THREE.MeshBasicMaterial({ color: gunColor });
             gunMesh = new THREE.Mesh(gunGeo, gunMat);
-            gunMesh.position.set(0.3, -0.28, -0.6);
+            gunMesh.position.set(0.35, -0.32, -0.6);
             camera.add(gunMesh);
             scene.add(camera);
         }
 
         function createBot() {
-            // تصميم البوت بمكعبات بكسلية بارزة تشبه شخصيات ماين كرافت
-            const botGeo = new THREE.BoxGeometry(1.2, 1.8, 1.2);
-            const botColors = [0xeab308, 0x9333ea, 0x2563eb, 0x0d9488];
-            const botMat = new THREE.MeshBasicMaterial({ color: botColors[Math.floor(Math.random() * botColors.length)] });
-            
-            const bot = new THREE.Mesh(botGeo, botMat);
-            bot.position.x = (Math.random() - 0.5) * 20;
-            bot.position.y = 0.9;
-            bot.position.z = -Math.random() * 18 - 5;
-            
-            bot.baseSpeed = (0.015 + Math.random() * 0.015) * difficultyMultiplier + (level - 1) * 0.003;
-            bot.aiTimer = Math.random() * 100;
-            bot.aiPattern = Math.floor(Math.random() * 3);
+            const group = new THREE.Group();
 
-            scene.add(bot);
-            bots.push(bot);
+            // رأس الشخصية البكسلي
+            const headGeo = new THREE.BoxGeometry(0.7, 0.7, 0.7);
+            const botColors = [0xfacc15, 0xef4444, 0xa855f7, 0x38bdf8, 0xec4899];
+            const headMat = new THREE.MeshBasicMaterial({ color: botColors[Math.floor(Math.random() * botColors.length)] });
+            const head = new THREE.Mesh(headGeo, headMat);
+            head.position.y = 1.35;
+            group.add(head);
+
+            // جسم الشخصية
+            const bodyGeo = new THREE.BoxGeometry(0.9, 1.1, 0.6);
+            const bodyMat = new THREE.MeshBasicMaterial({ color: 0x1e293b });
+            const body = new THREE.Mesh(bodyGeo, bodyMat);
+            body.position.y = 0.55;
+            group.add(body);
+
+            group.position.x = (Math.random() - 0.5) * 35;
+            group.position.y = 0;
+            group.position.z = -Math.random() * 25 - 8;
+
+            group.baseSpeed = (0.018 + Math.random() * 0.012) * difficultyMultiplier + (level - 1) * 0.0025;
+            scene.add(group);
+            bots.push(group);
         }
 
         function createSplatter(x, y, z, isWall = false) {
-            const splatterGeo = new THREE.PlaneGeometry(0.4, 0.4); // شكل بكسلي مربع
+            const splatterGeo = new THREE.PlaneGeometry(0.45, 0.45);
             const splatterColors = [0xffffff, 0xfde047, 0x22d3ee, 0xf43f5e, 0x4ade80];
             const splatterMat = new THREE.MeshBasicMaterial({ 
                 color: splatterColors[Math.floor(Math.random() * splatterColors.length)], 
@@ -434,42 +451,51 @@
             const splatter = new THREE.Mesh(splatterGeo, splatterMat);
 
             if (isWall) {
-                splatter.position.set(x, y, -29.8);
+                splatter.position.set(x, y, -49.8);
             } else {
-                splatter.position.set(x, 0.03, z);
+                splatter.position.set(x, 0.04, z);
                 splatter.rotation.x = -Math.PI / 2;
             }
             scene.add(splatter);
         }
 
-        function toggleScope() {
-            isScoped = !isScoped;
-            const scopeOverlay = document.getElementById("scopeOverlay");
-            
-            if (isScoped) {
-                scopeOverlay.style.display = "block";
-                camera.fov = 25;
-            } else {
-                scopeOverlay.style.display = "none";
-                camera.fov = 75;
+        function toggleFly() {
+            isFlying = !isFlying;
+            camera.position.y = isFlying ? 6.0 : 1.8;
+            document.getElementById("flyBtn").style.background = isFlying ? "#16a34a" : "#0284c7";
+        }
+
+        function movePlayer(dir) {
+            const speed = 0.7;
+            if (dir === 'forward') {
+                camera.position.x -= Math.sin(playerAngle) * speed;
+                camera.position.z -= Math.cos(playerAngle) * speed;
+            } else if (dir === 'back') {
+                camera.position.x += Math.sin(playerAngle) * speed;
+                camera.position.z += Math.cos(playerAngle) * speed;
+            } else if (dir === 'left') {
+                playerAngle += 0.18; // الالتفاف لليسار
+                camera.rotation.y = playerAngle;
+            } else if (dir === 'right') {
+                playerAngle -= 0.18; // الالتفاف لليمين
+                camera.rotation.y = playerAngle;
             }
-            camera.updateProjectionMatrix();
         }
 
         function shoot() {
             if (isGameOver) return;
 
             if (gunMesh) {
-                gunMesh.position.z += 0.1;
-                setTimeout(() => gunMesh.position.z -= 0.1, 80);
+                gunMesh.position.z += 0.12;
+                setTimeout(() => gunMesh.position.z -= 0.12, 80);
             }
 
-            createSplatter(camera.position.x + (Math.random() - 0.5) * 4, 0, camera.position.z - 3, false);
+            createSplatter(camera.position.x + (Math.random() - 0.5) * 5, 0, camera.position.z - 4, false);
 
             for (let i = bots.length - 1; i >= 0; i--) {
                 let bot = bots[i];
-                if (camera.position.distanceTo(bot.position) < 20) {
-                    // عندما تطخ عدداً: دمك يصير فل 100%
+                if (camera.position.distanceTo(bot.position) < 25) {
+                    // عندما تطخ عدداً: دمك يصير فل 100% فوراً
                     playerHp = 100;
                     document.getElementById("hpBar").style.width = "100%";
 
@@ -485,7 +511,7 @@
                     if (xp >= maxXp) {
                         xp = 0;
                         level++;
-                        maxXp += 250;
+                        maxXp += 300;
                         document.getElementById("level").innerText = level;
                     }
 
@@ -502,21 +528,13 @@
             if (isGameOver) return;
             requestAnimationFrame(animate);
 
+            // الأعداء يهجمون عليك ويتحركون نحوك باستمرار
             bots.forEach(bot => {
-                bot.position.z += bot.baseSpeed;
-                bot.aiTimer += 0.05;
+                bot.lookAt(camera.position.x, bot.position.y, camera.position.z);
+                bot.translateZ(bot.baseSpeed);
 
-                if (bot.aiPattern === 0) {
-                    bot.position.x += Math.sin(bot.aiTimer) * 0.04;
-                } else if (bot.aiPattern === 1) {
-                    bot.position.x += Math.cos(bot.aiTimer * 1.5) * 0.06;
-                } else {
-                    if (bot.position.x < camera.position.x) bot.position.x += 0.015;
-                    else bot.position.x -= 0.015;
-                }
-
-                if (bot.position.z > camera.position.z - 1.5) {
-                    playerHp -= 0.6 * difficultyMultiplier;
+                if (camera.position.distanceTo(bot.position) < 1.8 && !isFlying) {
+                    playerHp -= 0.7 * difficultyMultiplier;
                     document.getElementById("hpBar").style.width = Math.max(0, playerHp) + "%";
 
                     if (playerHp <= 0) {
@@ -543,10 +561,11 @@
             xp = 0;
             maxXp = 500;
             playerHp = 100;
-            isScoped = false;
-            document.getElementById("scopeOverlay").style.display = "none";
-            camera.fov = 75;
-            camera.updateProjectionMatrix();
+            isFlying = false;
+            playerAngle = 0;
+            camera.position.set(0, 1.8, 6);
+            camera.rotation.set(0, 0, 0);
+            document.getElementById("flyBtn").style.background = "#0284c7";
             document.getElementById("score").innerText = score;
             document.getElementById("level").innerText = level;
             document.getElementById("xpBar").style.width = "0%";
@@ -559,7 +578,7 @@
 
             bots.forEach(bot => scene.remove(bot));
             bots = [];
-            for (let i = 0; i < 4; i++) createBot();
+            for (let i = 0; i < 6; i++) createBot();
         }
 
         function returnToMenu() {
@@ -575,3 +594,4 @@
     </script>
 </body>
 </html>
+
