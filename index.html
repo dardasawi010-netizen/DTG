@@ -136,6 +136,15 @@
             color: #38a169;
         }
 
+        .logout-btn {
+            background: none;
+            border: none;
+            color: #e53e3e;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
         .action-banner {
             background: linear-gradient(135deg, #2e7d32, #1b5e20);
             padding: 14px;
@@ -247,10 +256,12 @@
         }
 
         .back-btn {
-            background: none;
+            background-color: #2d3748;
             border: none;
-            color: #38a169;
-            font-size: 14px;
+            color: #cbd5e0;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
             cursor: pointer;
             font-weight: bold;
         }
@@ -287,7 +298,7 @@
         }
     </style>
 </head>
-<body>
+<body onload="checkLoginStatus()">
 
     <div class="container">
 
@@ -311,8 +322,11 @@
         <!-- 2. الشاشة الرئيسية وعرض الأشرطة -->
         <div id="home-screen">
             <div class="header">
-                <h3>أشرطة طلبات الشاحنات والأطنان</h3>
-                <span id="user-phone-display" style="font-size: 11px; color: #a0aec0;"></span>
+                <div>
+                    <h3>أشرطة طلبات الشاحنات</h3>
+                    <span id="user-phone-display" style="font-size: 11px; color: #a0aec0;"></span>
+                </div>
+                <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
             </div>
 
             <div class="action-banner">
@@ -332,8 +346,8 @@
         <!-- 3. شاشة إدخال بيانات الشاحنة -->
         <div id="form-screen">
             <div class="form-header">
-                <button class="back-btn" onclick="goBackToHome()">← إلغاء</button>
-                <h4 style="font-size: 14px;">طلب شاحنة وأطنان جديد</h4>
+                <button class="back-btn" onclick="goBackToHome()">← الرجوع للوحة الرئيسية</button>
+                <h4 style="font-size: 14px; color: #38a169;">إضافة شاحنة</h4>
                 <span></span>
             </div>
 
@@ -365,11 +379,20 @@
     </div>
 
     <script>
-        // قاعدة بيانات وهمية للأشرطة الحالية ليراها الجميع
         let trucksTickers = [
-            { plate: "أردن 12-8831", tons: "35 طن", route: "عمان - إربد", contact: "0791122334", status: "متاح" },
-            { plate: "أردن 5-9920", tons: "25 طن", route: "الزرقاء - المفرق", contact: "0785566778", status: "متاح" }
+            { plate: "أردن 12-8831", tons: "35 طن", route: "عمان - إربد", contact: "0791122334" },
+            { plate: "أردن 5-9920", tons: "25 طن", route: "الزرقاء - المفرق", contact: "0785566778" }
         ];
+
+        function checkLoginStatus() {
+            const savedPhone = localStorage.getItem('truckAppUserPhone');
+            if (savedPhone) {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('home-screen').style.display = 'flex';
+                document.getElementById('user-phone-display').innerText = "الهاتف: " + savedPhone;
+                renderTickers();
+            }
+        }
 
         function login() {
             const phone = document.getElementById('phoneNumber').value.trim();
@@ -378,13 +401,22 @@
 
             if (jordanRegex.test(phone)) {
                 errorMsg.style.display = 'none';
+                localStorage.setItem('truckAppUserPhone', phone);
+
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('home-screen').style.display = 'flex';
-                document.getElementById('user-phone-display').innerText = phone;
+                document.getElementById('user-phone-display').innerText = "الهاتف: " + phone;
                 renderTickers();
             } else {
                 errorMsg.style.display = 'block';
             }
+        }
+
+        function logout() {
+            localStorage.removeItem('truckAppUserPhone');
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('login-screen').style.display = 'flex';
+            document.getElementById('phoneNumber').value = '07';
         }
 
         function openFormScreen() {
@@ -408,16 +440,13 @@
                 return;
             }
 
-            // إضافة الطلب الجديد في قمة القائمة ليظهر كشريط جديد للجميع
             trucksTickers.unshift({
                 plate: plate,
                 tons: tons + " طن",
                 route: route,
-                contact: contact,
-                status: "متاح"
+                contact: contact
             });
 
-            // تفريغ الحقول والعودة
             document.getElementById('truckPlate').value = '';
             document.getElementById('truckTons').value = '';
             document.getElementById('truckRoute').value = '';
