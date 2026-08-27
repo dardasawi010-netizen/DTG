@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق الدردشة - TrucksApp</title>
+  <title>تطبيق الدردشة والواتساب - TrucksApp</title>
   <style>
     * {
       box-sizing: border-box;
@@ -16,7 +16,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
+      padding: 20px 10px;
     }
     .chat-container {
       width: 100%;
@@ -38,20 +39,52 @@
       font-weight: bold;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .username-bar {
-      background: #128c7e;
-      padding: 8px 12px;
+    /* قسم الواتساب الجديد */
+    .whatsapp-section {
+      background-color: #128c7e;
+      padding: 12px;
       display: flex;
+      flex-direction: column;
       gap: 8px;
+      border-bottom: 2px solid #075e54;
     }
-    .username-bar input {
-      flex: 1;
-      padding: 6px 12px;
+    .whatsapp-section label {
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .whatsapp-inputs {
+      display: flex;
+      gap: 6px;
+    }
+    .whatsapp-inputs input {
+      padding: 8px;
       border: none;
       border-radius: 4px;
       font-size: 0.85rem;
       outline: none;
     }
+    .whatsapp-inputs input[type="tel"] {
+      width: 40%;
+    }
+    .whatsapp-inputs input[type="text"] {
+      width: 60%;
+    }
+    .whatsapp-btn {
+      background-color: #25d366;
+      color: #ffffff;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: background 0.2s;
+    }
+    .whatsapp-btn:hover {
+      background-color: #1eb859;
+    }
+    /* قسم الدردشة */
     .chat-box {
       flex: 1;
       padding: 16px;
@@ -63,7 +96,7 @@
     }
     .message {
       background-color: #ffffff;
-      padding: 8px 12px;
+      padding: 10px 14px;
       border-radius: 8px;
       max-width: 80%;
       word-wrap: break-word;
@@ -71,18 +104,6 @@
       color: #333333;
       align-self: flex-start;
       box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-      display: flex;
-      flex-direction: column;
-    }
-    .message.my-message {
-      background-color: #dcf8c6;
-      align-self: flex-end;
-    }
-    .message .sender-name {
-      font-size: 0.75rem;
-      font-weight: bold;
-      color: #075e54;
-      margin-bottom: 2px;
     }
     .chat-input-area {
       display: flex;
@@ -118,22 +139,31 @@
 
   <div class="chat-container">
     <div class="chat-header">تطبيق TrucksApp للمراسلة</div>
-    <div class="username-bar">
-      <input type="text" id="username-input" placeholder="اكتب اسمك هنا (مثالي: سائق 1)" value="مستخدم">
+    
+    <!-- قسم المراسلة السريعة عبر واتساب -->
+    <div class="whatsapp-section">
+      <label>مراسلة مباشرة عبر واتساب:</label>
+      <div class="whatsapp-inputs">
+        <input type="tel" id="wa-phone" placeholder="الرقم مع رمز الدولة (مثال: 96650...)" />
+        <input type="text" id="wa-msg" placeholder="الرسالة الاختيارية..." />
+      </div>
+      <button class="whatsapp-btn" id="wa-send-btn">فتح محادثة واتساب 💬</button>
     </div>
+
+    <!-- قسم الدردشة المباشرة (Firebase) -->
     <div class="chat-box" id="chat-box"></div>
     <div class="chat-input-area">
-      <input type="text" id="message-input" placeholder="اكتب رسالتك هنا..." autocomplete="off">
+      <input type="text" id="message-input" placeholder="اكتب رسالتك هنا في التطبيق..." autocomplete="off">
       <button id="send-btn">إرسال</button>
     </div>
   </div>
 
-  <!-- مكتبات Firebase Mappers المعتمدة للمتصفح مباشرة -->
+  <!-- استدعاء مكتبات Firebase Compatible -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
   <script>
-    // إعدادات الربط الخاصة بمشروعك
+    // إعدادات ومفاتيح الربط الخاصة بمشروعك
     const firebaseConfig = {
       apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
       authDomain: "trucksapp-24ad7.firebaseapp.com",
@@ -145,24 +175,34 @@
       databaseURL: "https://trucksapp-24ad7-default-rtdb.firebaseio.com"
     };
 
-    // تشغيل Firebase
+    // تهيئة Firebase وقاعدة البيانات
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const messagesRef = database.ref('messages');
 
     const chatBox = document.getElementById('chat-box');
     const messageInput = document.getElementById('message-input');
-    const usernameInput = document.getElementById('username-input');
     const sendBtn = document.getElementById('send-btn');
 
-    // دالة إرسال الرسالة
+    // 1. برمجة زر المراسلة عبر واتساب
+    document.getElementById('wa-send-btn').addEventListener('click', () => {
+      const phoneInput = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
+      const msgInput = encodeURIComponent(document.getElementById('wa-msg').value.trim());
+
+      if (!phoneInput) {
+        alert("يرجى إدخال رقم الهاتف شاملاً رمز الدولة بدون علامة +");
+        return;
+      }
+
+      const waUrl = `https://wa.me/${phoneInput}?text=${msgInput}`;
+      window.open(waUrl, '_blank');
+    });
+
+    // 2. دالة إرسال الرسائل داخل التطبيق (Firebase)
     function sendMessage() {
       const text = messageInput.value.trim();
-      const sender = usernameInput.value.trim() || "مستخدم مجهول";
-
       if (text !== "") {
         messagesRef.push({
-          sender: sender,
           text: text,
           timestamp: Date.now()
         });
@@ -175,29 +215,12 @@
       if (e.key === 'Enter') sendMessage();
     });
 
-    // الاستماع للرسائل في الوقت الفعلي
+    // 3. استقبال وتحديث الرسائل مباشرة
     messagesRef.on('child_added', (snapshot) => {
       const msg = snapshot.val();
-      const currentSender = usernameInput.value.trim() || "مستخدم مجهول";
-      
       const msgDiv = document.createElement('div');
       msgDiv.classList.add('message');
-      
-      // إذا كانت الرسالة من صاحب الجهاز تظهر باللون الأخضر على اليسار
-      if (msg.sender === currentSender) {
-        msgDiv.classList.add('my-message');
-      }
-
-      const senderDiv = document.createElement('div');
-      senderDiv.classList.add('sender-name');
-      senderDiv.textContent = msg.sender || "مستخدم";
-
-      const textDiv = document.createElement('div');
-      textDiv.textContent = msg.text;
-
-      msgDiv.appendChild(senderDiv);
-      msgDiv.appendChild(textDiv);
-      
+      msgDiv.textContent = msg.text;
       chatBox.appendChild(msgDiv);
       chatBox.scrollTop = chatBox.scrollHeight;
     });
