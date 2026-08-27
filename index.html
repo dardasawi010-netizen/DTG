@@ -2,85 +2,176 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لعبة ماريو المصغرة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ماريو لوكي بلوك - تحكم بالهاتف</title>
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
         body {
-            background-color: #222;
+            background-color: #111;
             color: white;
             text-align: center;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 10px;
+            overflow: hidden;
+        }
+        h1 {
+            font-size: 20px;
+            margin: 5px 0;
+            color: #f1c40f;
+            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+        .canvas-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            border: 4px solid #f1c40f;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
         }
         canvas {
-            background-color: #5c94fc; /* لون سماء ماريو الكلاسيكي */
+            background: linear-gradient(to bottom, #1a252f, #2c3e50);
             display: block;
-            margin: 20px auto;
-            border: 4px solid #fff;
-            box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            height: auto;
         }
-        .instructions {
+        /* أزرار التحكم للهاتف */
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            max-width: 600px;
+            margin: 15px auto 0 auto;
+            padding: 0 10px;
+        }
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        .control-btn {
+            background: rgba(241, 196, 15, 0.2);
+            border: 2px solid #f1c40f;
+            color: #f1c40f;
+            font-size: 22px;
+            font-weight: bold;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            outline: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: background 0.1s;
+        }
+        .control-btn:active {
+            background: rgba(241, 196, 15, 0.6);
+            transform: scale(0.95);
+        }
+        .jump-btn {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            color: #2ecc71;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+        }
+        .jump-btn:active {
+            background: rgba(46, 204, 113, 0.6);
+        }
+        .score-board {
             font-size: 16px;
-            color: #ddd;
+            margin-bottom: 5px;
+            color: #fff;
         }
     </style>
 </head>
 <body>
 
-    <h1>لعبة ماريو المصغرة</h1>
-    <div class="instructions">
-        استخدم <strong>السهم الأيمن والأيسر</strong> للحركة، ومفتاح <strong>السهم الأيمن + المسافة</strong> أو <strong>السهم الأعلى (↑)</strong> للقفز!
+    <h1>ماريو: مغامرة لوكي بلوك 🌟</h1>
+    <div class="score-board">النقاط: <span id="score">0</span> | الحظ: <span id="luckMsg">ابحث عن الصناديق الصفراء!</span></div>
+
+    <div class="canvas-container">
+        <canvas id="gameCanvas" width="600" height="350"></canvas>
     </div>
 
-    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div class="controls">
+        <div class="btn-group">
+            <button class="control-btn" id="leftBtn">◀</button>
+            <button class="control-btn" id="rightBtn">▶</button>
+        </div>
+        <div class="btn-group">
+            <button class="control-btn jump-btn" id="jumpBtn">🚀</button>
+        </div>
+    </div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
+        const scoreElement = document.getElementById("score");
+        const luckMsg = document.getElementById("luckMsg");
 
-        // خصائص اللاعب (ماريو)
+        let score = 0;
+
+        // خصائص ماريو
         let mario = {
             x: 50,
             y: 200,
-            width: 30,
-            height: 40,
-            speed: 4,
+            width: 28,
+            height: 38,
+            speed: 4.5,
             dx: 0,
             dy: 0,
-            jumpPower: -10,
-            grounded: false,
-            color: "#e52521" // أحمر ماريو
+            jumpPower: -10.5,
+            grounded: false
         };
 
-        // الجاذبية والبيئة
         const gravity = 0.5;
-        
-        // المنصات والعوائق
+
+        // المنصات مصممة على شكل "لوكي بلوك" (Lucky Blocks) صفراء مرسوم عليها علامة ?
         let platforms = [
-            { x: 0, y: 350, width: 800, height: 50, color: "#00a800" }, // الأرضية
-            { x: 300, y: 250, width: 150, height: 20, color: "#c84c0c" }, // منصة 1
-            { x: 550, y: 180, width: 120, height: 20, color: "#c84c0c" }  // منصة 2
+            { x: 0, y: 310, width: 600, height: 40, type: "ground" }, // الأرضية الخضراء الحجرية
+            { x: 180, y: 220, width: 120, height: 35, type: "lucky" },  // لوكي بلوك 1
+            { x: 380, y: 150, width: 120, height: 35, type: "lucky" }   // لوكي بلوك 2
         ];
 
-        // تتبع الأزرار المضغوطة
+        // تتبع حالة أزرار اللمس واللوحة
         let keys = {};
 
+        // أحداث لوحة المفاتيح (للكمبيوتر)
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
-            // القفز عند الضغط على المسافة أو السهم لأعلى
             if ((e.code === "Space" || e.code === "ArrowUp") && mario.grounded) {
-                mario.dy = mario.jumpPower;
-                mario.grounded = false;
+                jump();
             }
         });
+        window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
-        window.addEventListener("keyup", (e) => {
-            keys[e.code] = false;
-        });
+        // ربط أزرار اللمس (للهاتف الذكي)
+        const setupTouch = (id, code) => {
+            const btn = document.getElementById(id);
+            btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; if(id === 'jumpBtn' && mario.grounded) jump(); });
+            btn.addEventListener("touchend", (e) => { e.preventDefault(); keys[code] = false; });
+            btn.addEventListener("mousedown", () => { keys[code] = true; if(id === 'jumpBtn' && mario.grounded) jump(); });
+            btn.addEventListener("mouseup", () => { keys[code] = false; });
+        };
+
+        setupTouch("leftBtn", "ArrowLeft");
+        setupTouch("rightBtn", "ArrowRight");
+        setupTouch("jumpBtn", "Space");
+
+        function jump() {
+            mario.dy = mario.jumpPower;
+            mario.grounded = false;
+        }
 
         function update() {
-            // التحكم الأفقي
             if (keys["ArrowRight"]) {
                 mario.dx = mario.speed;
             } else if (keys["ArrowLeft"]) {
@@ -89,21 +180,17 @@
                 mario.dx = 0;
             }
 
-            // تطبيق الجاذبية
             mario.dy += gravity;
-
-            // تحديث موقع ماريو
             mario.x += mario.dx;
             mario.y += mario.dy;
 
-            // الحدود الجانبية للشاشة
+            // الحدود الجانبية
             if (mario.x < 0) mario.x = 0;
             if (mario.x + mario.width > canvas.width) mario.x = canvas.width - mario.width;
 
-            // فحص الاصطدام بالمنصات والأرض
+            // فحص الاصطدام بالمنصات واللوكي بلوك
             mario.grounded = false;
             platforms.forEach(plat => {
-                // اصطدام من الأعلى
                 if (
                     mario.x < plat.x + plat.width &&
                     mario.x + mario.width > plat.x &&
@@ -113,10 +200,21 @@
                     mario.dy = 0;
                     mario.y = plat.y - mario.height;
                     mario.grounded = true;
+
+                    // إذا كانت المنصة لوكي بلوك وصعد عليها لأول مرة
+                    if (plat.type === "lucky" && !plat.opened) {
+                        plat.opened = true;
+                        let luckEvents = ["+100 نقطة حظ! 🌟", "ضربة قوية! 🔥", "مفاجأة سارة! 🎁", "طفرة نقاط! 💎"];
+                        let randomEvent = luckEvents[Math.floor(Math.random() * luckEvents.length)];
+                        luckMsg.innerText = randomEvent;
+                        score += 100;
+                        scoreElement.innerText = score;
+                        plat.color = "#7f8c8d"; // يتحول لون البلوك للرمادي بعد فتحه
+                    }
                 }
             });
 
-            // إذا سقط خارج الشاشة (خسارة)
+            // السقوط بالخارج
             if (mario.y > canvas.height) {
                 resetGame();
             }
@@ -126,25 +224,54 @@
             mario.x = 50;
             mario.y = 200;
             mario.dy = 0;
+            luckMsg.innerText = "لقد سقطت! حاول مجدداً";
         }
 
         function draw() {
-            // مسح الشاشة لتحديث الإطار
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // رسم المنصات والأرضية
+            // رسم المنصات واللوكي بلوك
             platforms.forEach(plat => {
-                ctx.fillStyle = plat.color;
-                ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                if (plat.type === "ground") {
+                    ctx.fillStyle = "#27ae60";
+                    ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                    // تفاصيل حجرية بالأعلى
+                    ctx.fillStyle = "#2ecc71";
+                    ctx.fillRect(plat.x, plat.y, plat.width, 8);
+                } else {
+                    // شكل اللوكي بلوك الأصفر المميز
+                    ctx.fillStyle = plat.opened ? "#7f8c8d" : "#f1c40f";
+                    ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+                    
+                    // إطار الحدود للوكي بلوك
+                    ctx.strokeStyle = "#d35400";
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
+
+                    // كتابة علامة الاستفهام (?) في منتصف الصندوق
+                    if (!plat.opened) {
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "bold 20px Arial";
+                        ctx.fillText("?", plat.x + plat.width / 2 - 6, plat.y + 24);
+                    }
+                }
             });
 
-            // رسم ماريو (مربع أحمر يمثل الشخصية)
-            ctx.fillStyle = mario.color;
-            ctx.fillRect(mario.x, mario.y, mario.width, mario.height);
+            // رسم شخصية ماريو الواقعية بتفاصيل أنيق ومجسمة
+            // الجسم (القميص أو السالوبيت الأحمر والأزرق)
+            ctx.fillStyle = "#e74c3c"; // أحمر ماريو
+            ctx.fillRect(mario.x + 4, mario.y + 12, 20, 20);
             
-            // رسم قبعة أو تفصيلة بسيطة لماريو
-            ctx.fillStyle = "#ffffff";
-            ctx.fillRect(mario.x + 5, mario.y + 5, 10, 5);
+            // البنطال الأزرق
+            ctx.fillStyle = "#2980b9";
+            ctx.fillRect(mario.x + 6, mario.y + 24, 16, 14);
+
+            // الوجه والقبعة
+            ctx.fillStyle = "#f39c12"; // لون الوجه
+            ctx.fillRect(mario.x + 6, mario.y + 2, 16, 14);
+            
+            ctx.fillStyle = "#c0392b"; // القبعة الحمراء
+            ctx.fillRect(mario.x + 2, mario.y, 24, 6);
         }
 
         function loop() {
@@ -153,7 +280,6 @@
             requestAnimationFrame(loop);
         }
 
-        // بدء اللعبة
         loop();
     </script>
 
