@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة المغامرة الكبرى - لوكي بلوك</title>
+    <title>مغامرة الكتل 16-bit - 10 مراحل</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,99 +11,97 @@
             -webkit-user-select: none;
         }
         body {
-            background-color: #0d1117;
-            color: white;
+            background-color: #0b0f19;
+            color: #fff;
             text-align: center;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Courier New', Courier, monospace; /* خط كلاسيكي يوافق طابع 16-bit */
             margin: 0;
             padding: 10px;
             overflow: hidden;
         }
         h1 {
-            font-size: 18px;
-            margin: 5px 0;
+            font-size: 16px;
+            margin: 4px 0;
             color: #f1c40f;
+            text-transform: uppercase;
         }
         .ui-panel {
             display: flex;
             justify-content: space-around;
             max-width: 600px;
             margin: 0 auto 5px auto;
-            font-size: 14px;
-            background: rgba(255,255,255,0.05);
-            padding: 5px;
-            border-radius: 8px;
+            font-size: 13px;
+            background: #1f2937;
+            padding: 6px;
+            border: 2px solid #374151;
+            border-radius: 4px;
         }
         .canvas-container {
             position: relative;
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            border: 3px solid #f1c40f;
-            border-radius: 12px;
+            border: 4px solid #4b5563;
+            border-radius: 4px;
             overflow: hidden;
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
+            background: #000;
         }
         canvas {
-            background: linear-gradient(to bottom, #1a252f, #34495e);
+            image-rendering: pixelated; /* الحفاظ على مظهر البكسل النقي 16-bit */
             display: block;
             width: 100%;
             height: auto;
         }
-        /* لوحة التحكم المخصصة للهاتف */
         .controls {
             display: flex;
             justify-content: space-between;
             max-width: 600px;
-            margin: 12px auto 0 auto;
-            padding: 0 10px;
+            margin: 10px auto 0 auto;
+            padding: 0 5px;
         }
         .btn-group {
             display: flex;
-            gap: 12px;
+            gap: 10px;
         }
         .control-btn {
-            background: rgba(241, 196, 15, 0.15);
-            border: 2px solid #f1c40f;
-            color: #f1c40f;
-            font-size: 22px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+            background: #374151;
+            border: 2px solid #9ca3af;
+            color: #fff;
+            font-size: 20px;
+            width: 55px;
+            height: 55px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             outline: none;
         }
         .control-btn:active {
-            background: rgba(241, 196, 15, 0.5);
+            background: #4b5563;
         }
         .jump-btn {
-            background: rgba(46, 204, 113, 0.15);
-            border-color: #2ecc71;
-            color: #2ecc71;
-            width: 75px;
-            height: 75px;
-        }
-        .jump-btn:active {
-            background: rgba(46, 204, 113, 0.5);
+            background: #065f46;
+            border-color: #34d399;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
         }
     </style>
 </head>
 <body>
 
-    <h1>🌟 مغامرة الكتل المحظوظة والأبطال 🌟</h1>
+    <h1>🎮 مغامرة 16-bit - نظام 10 مراحل</h1>
     <div class="ui-panel">
+        <div>المرحلة: <span id="stageNum">1</span>/10</div>
         <div>❤️ القلوب: <span id="lives">3</span></div>
         <div>💰 العملات: <span id="coins">0</span></div>
         <div>🏆 النقاط: <span id="score">0</span></div>
     </div>
 
     <div class="canvas-container">
-        <canvas id="gameCanvas" width="600" height="320"></canvas>
+        <canvas id="gameCanvas" width="512" height="288"></canvas>
     </div>
 
-    <!-- أزرار التحكم باللمس للهاتف -->
     <div class="controls">
         <div class="btn-group">
             <button class="control-btn" id="leftBtn">◀</button>
@@ -118,67 +116,94 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        // عناصر الواجهة
+        const stageNumEl = document.getElementById("stageNum");
         const livesEl = document.getElementById("lives");
         const coinsEl = document.getElementById("coins");
         const scoreEl = document.getElementById("score");
 
-        // متغيرات اللعبة الأساسية
         let score = 0;
         let coins = 0;
         let lives = 3;
-        let gameState = "PLAYING"; // PLAYING, GAMEOVER, WIN
+        let currentStage = 1;
+        let gameState = "PLAYING"; // PLAYING, STAGE_CLEAR, GAMEOVER, WIN_ALL
 
-        // البطل (Player)
         let player = {
-            x: 50,
-            y: 180,
-            width: 26,
-            height: 36,
-            speed: 4,
+            x: 32,
+            y: 150,
+            width: 16, // حجم 16 بكسل حقيقي
+            height: 24,
+            speed: 3,
             dx: 0,
             dy: 0,
-            jumpPower: -9.5,
+            jumpPower: -8.5,
             grounded: false
         };
 
-        const gravity = 0.45;
-
-        // المنصات واللوكي بلوك
-        let platforms = [
-            { x: 0, y: 280, width: 800, height: 40, type: "ground" },
-            { x: 200, y: 190, width: 100, height: 30, type: "lucky", opened: false },
-            { x: 380, y: 130, width: 100, height: 30, type: "lucky", opened: false },
-            { x: 550, y: 190, width: 120, height: 30, type: "platform" }
-        ];
-
-        // العملات القابلة للجمع
-        let collectables = [
-            { x: 235, y: 150, radius: 8, collected: false },
-            { x: 415, y: 90, radius: 8, collected: false },
-            { x: 600, y: 150, radius: 8, collected: false }
-        ];
-
-        // الأعداء والعقبات
-        let enemies = [
-            { x: 300, y: 250, width: 25, height: 30, speed: 1.5, minX: 200, maxX: 450, dir: 1 }
-        ];
-
-        // بوابة النهاية
-        let goal = { x: 730, y: 210, width: 30, height: 70 };
-
-        // أداة تتبع الأزرار والتحكم
+        const gravity = 0.4;
         let keys = {};
 
+        // هيكل بيانات الـ 10 مراحل (منصات، أعداء، عملات حسب رقم المرحلة)
+        function loadStage(stage) {
+            player.x = 32;
+            player.y = 150;
+            player.dy = 0;
+
+            let platforms = [
+                { x: 0, y: 256, width: 800 + (stage * 50), height: 32, type: "ground" }
+            ];
+
+            // إضافة عوائق ولؤكي بلوك تزيد صعوباتها تدريجياً في الـ 10 مراحل
+            let luckyCount = 2 + Math.floor(stage / 2);
+            for (let i = 0; i < luckyCount; i++) {
+                platforms.push({
+                    x: 120 + (i * 100),
+                    y: 190 - (i % 2) * 30,
+                    width: 32,
+                    height: 16,
+                    type: "lucky",
+                    opened: false
+                });
+            }
+
+            let collectables = [];
+            for (let i = 0; i < 3 + stage; i++) {
+                collectables.push({
+                    x: 100 + (i * 70),
+                    y: 130,
+                    radius: 6,
+                    collected: false
+                });
+            }
+
+            let enemies = [];
+            let enemyCount = Math.min(1 + Math.floor(stage / 2), 4);
+            for (let i = 0; i < enemyCount; i++) {
+                enemies.push({
+                    x: 200 + (i * 120),
+                    y: 240,
+                    width: 16,
+                    height: 16,
+                    speed: 1 + (stage * 0.2), // زيادة سرعة الأعداء تدريجياً
+                    minX: 180 + (i * 120),
+                    maxX: 280 + (i * 120),
+                    dir: 1
+                });
+            }
+
+            let goal = { x: 750 + (stage * 40), y: 192, width: 16, height: 64 };
+
+            return { platforms, collectables, enemies, goal };
+        }
+
+        let currentWorld = loadStage(currentStage);
+
+        // التحكم باللوحة واللمس
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
-            if ((e.code === "Space" || e.code === "ArrowUp") && player.grounded && gameState === "PLAYING") {
-                jump();
-            }
+            if ((e.code === "Space" || e.code === "ArrowUp") && player.grounded && gameState === "PLAYING") jump();
         });
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
-        // ربط أزرار اللمس بالهاتف
         const setupTouch = (id, code) => {
             const btn = document.getElementById(id);
             btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; if(id === 'jumpBtn' && player.grounded && gameState === 'PLAYING') jump(); });
@@ -186,7 +211,6 @@
             btn.addEventListener("mousedown", () => { keys[code] = true; if(id === 'jumpBtn' && player.grounded && gameState === 'PLAYING') jump(); });
             btn.addEventListener("mouseup", () => { keys[code] = false; });
         };
-
         setupTouch("leftBtn", "ArrowLeft");
         setupTouch("rightBtn", "ArrowRight");
         setupTouch("jumpBtn", "Space");
@@ -199,26 +223,19 @@
         function update() {
             if (gameState !== "PLAYING") return;
 
-            // الحركة الأفقية
-            if (keys["ArrowRight"]) {
-                player.dx = player.speed;
-            } else if (keys["ArrowLeft"]) {
-                player.dx = -player.speed;
-            } else {
-                player.dx = 0;
-            }
+            if (keys["ArrowRight"]) player.dx = player.speed;
+            else if (keys["ArrowLeft"]) player.dx = -player.speed;
+            else player.dx = 0;
 
-            // الجاذبية والحركة
             player.dy += gravity;
             player.x += player.dx;
             player.y += player.dy;
 
-            // حدود الشاشة
             if (player.x < 0) player.x = 0;
 
-            // اصطدام اللاعب بالمنصات واللوكي بلوك
+            // اصطدام المنصات
             player.grounded = false;
-            platforms.forEach(plat => {
+            currentWorld.platforms.forEach(plat => {
                 if (
                     player.x < plat.x + plat.width &&
                     player.x + player.width > plat.x &&
@@ -229,11 +246,10 @@
                     player.y = plat.y - player.height;
                     player.grounded = true;
 
-                    // تفعيل اللوكي بلوك عند الاصطدام من الأسفل للأعلى أو الوقوف عليها
                     if (plat.type === "lucky" && !plat.opened) {
                         plat.opened = true;
-                        coins += 5;
-                        score += 200;
+                        coins += 2;
+                        score += 100;
                         coinsEl.innerText = coins;
                         scoreEl.innerText = score;
                     }
@@ -241,154 +257,145 @@
             });
 
             // جمع العملات
-            collectables.forEach(item => {
+            currentWorld.collectables.forEach(item => {
                 if (!item.collected) {
-                    let dist = Math.hypot((player.x + player.width/2) - item.x, (player.y + player.height/2) - item.y);
-                    if (dist < 20) {
+                    let dist = Math.hypot((player.x + 8) - item.x, (player.y + 12) - item.y);
+                    if (dist < 16) {
                         item.collected = true;
                         coins += 1;
-                        score += 50;
+                        score += 25;
                         coinsEl.innerText = coins;
                         scoreEl.innerText = score;
                     }
                 }
             });
 
-            // حركة الأعداء
-            enemies.forEach(enemy => {
+            // الأعداء
+            currentWorld.enemies.forEach(enemy => {
                 enemy.x += enemy.speed * enemy.dir;
-                if (enemy.x < enemy.minX || enemy.x > enemy.maxX) {
-                    enemy.dir *= -1;
-                }
+                if (enemy.x < enemy.minX || enemy.x > enemy.maxX) enemy.dir *= -1;
 
-                // فحص الاصطدام بالعدو
                 if (
                     player.x < enemy.x + enemy.width &&
                     player.x + player.width > enemy.x &&
                     player.y < enemy.y + enemy.height &&
                     player.y + player.height > enemy.y
                 ) {
-                    // إذا سقط اللاعب فوق العدو يقضي عليه
-                    if (player.dy > 0 && player.y + player.height - player.dy <= enemy.y + 10) {
-                        enemies = enemies.filter(e => e !== enemy);
-                        score += 100;
+                    if (player.dy > 0 && player.y + player.height - player.dy <= enemy.y + 6) {
+                        currentWorld.enemies = currentWorld.enemies.filter(e => e !== enemy);
+                        score += 150;
                         scoreEl.innerText = score;
-                        player.dy = -6; // قفزة خفيفة بعد قتل العدو
+                        player.dy = -5;
                     } else {
-                        // خسارة حياة
                         lives--;
                         livesEl.innerText = lives;
-                        player.x = 50;
+                        player.x = 32;
                         player.y = 150;
-                        if (lives <= 0) {
-                            gameState = "GAMEOVER";
-                        }
+                        if (lives <= 0) gameState = "GAMEOVER";
                     }
                 }
             });
 
-            // الوصول لبوابة النهاية (الفوز)
+            // بوابة نهاية المرحلة
+            let goal = currentWorld.goal;
             if (
                 player.x < goal.x + goal.width &&
                 player.x + player.width > goal.x &&
                 player.y < goal.y + goal.height &&
                 player.y + player.height > goal.y
             ) {
-                gameState = "WIN";
+                if (currentStage < 10) {
+                    currentStage++;
+                    stageNumEl.innerText = currentStage;
+                    currentWorld = loadStage(currentStage);
+                } else {
+                    gameState = "WIN_ALL";
+                }
             }
 
-            // السقوط في الحفرة
+            // السقوط في الحفر
             if (player.y > canvas.height) {
                 lives--;
                 livesEl.innerText = lives;
-                player.x = 50;
+                player.x = 32;
                 player.y = 150;
                 player.dy = 0;
-                if (lives <= 0) {
-                    gameState = "GAMEOVER";
-                }
+                if (lives <= 0) gameState = "GAMEOVER";
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // تحريك الكاميرا الأفقية بناءً على مكان اللاعب
+            // الكاميرا الأفقية الكلاسيكية
             ctx.save();
-            let cameraX = -player.x + 150;
-            if (cameraX > 0) cameraX = 0; // عدم الرجوع للخلف قبل بداية الماب
+            let cameraX = -player.x + 100;
+            if (cameraX > 0) cameraX = 0;
             ctx.translate(cameraX, 0);
 
-            // رسم البوابة
-            ctx.fillStyle = "#9b59b6";
-            ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
-            ctx.fillStyle = "#fff";
-            ctx.fillRect(goal.x + 5, goal.y + 10, 5, 50);
+            // خلفية ألوان 16-bit تتغير بتغير المرحلة
+            ctx.fillStyle = currentStage % 2 === 0 ? "#111827" : "#1f1f2e";
+            ctx.fillRect(-cameraX, 0, canvas.width, canvas.height);
 
-            // رسم المنصات واللوكي بلوك
-            platforms.forEach(plat => {
+            // رسم البوابة
+            ctx.fillStyle = "#8b5cf6";
+            ctx.fillRect(currentWorld.goal.x, currentWorld.goal.y, currentWorld.goal.width, currentWorld.goal.height);
+
+            // رسم المنصات واللوكي بلوك بنمط 16-bit
+            currentWorld.platforms.forEach(plat => {
                 if (plat.type === "ground") {
-                    ctx.fillStyle = "#27ae60";
+                    ctx.fillStyle = "#059669";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                } else if (plat.type === "lucky") {
-                    ctx.fillStyle = plat.opened ? "#7f8c8d" : "#f1c40f";
+                    ctx.fillStyle = "#10b981";
+                    ctx.fillRect(plat.x, plat.y, plat.width, 4); // عشب بكسلي
+                } else {
+                    ctx.fillStyle = plat.opened ? "#4b5563" : "#f59e0b";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                    ctx.strokeStyle = "#d35400";
-                    ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
                     if (!plat.opened) {
                         ctx.fillStyle = "#fff";
-                        ctx.font = "bold 16px Arial";
-                        ctx.fillText("?", plat.x + plat.width / 2 - 5, plat.y + 21);
+                        ctx.font = "bold 10px Courier New";
+                        ctx.fillText("?", plat.x + 5, plat.y + 12);
                     }
-                } else {
-                    ctx.fillStyle = "#e67e22";
-                    ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                 }
             });
 
             // رسم العملات
-            collectables.forEach(item => {
+            currentWorld.collectables.forEach(item => {
                 if (!item.collected) {
-                    ctx.fillStyle = "#f39c12";
+                    ctx.fillStyle = "#fbbf24";
                     ctx.beginPath();
                     ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
                     ctx.fill();
-                    ctx.strokeStyle = "#d35400";
-                    ctx.stroke();
                 }
             });
 
             // رسم الأعداء
-            enemies.forEach(enemy => {
-                ctx.fillStyle = "#e74c3c";
+            currentWorld.enemies.forEach(enemy => {
+                ctx.fillStyle = "#dc2626";
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-                // عيون العدو
-                ctx.fillStyle = "#fff";
-                ctx.fillRect(enemy.x + 4, enemy.y + 6, 5, 5);
             });
 
-            // رسم اللاعب (البطل)
-            ctx.fillStyle = "#3498db";
+            // رسم اللاعب (16 بكسل متناسق)
+            ctx.fillStyle = "#3b82f6";
             ctx.fillRect(player.x, player.y, player.width, player.height);
-            // قبعة البطل
-            ctx.fillStyle = "#2980b9";
-            ctx.fillRect(player.x - 2, player.y, player.width + 4, 8);
+            ctx.fillStyle = "#1d4ed8";
+            ctx.fillRect(player.x + 2, player.y, 12, 6); // قبعة بكسلية
 
             ctx.restore();
 
-            // شاشات النهاية (الفوز / الخسارة)
+            // شاشات الحالة النهائية
             if (gameState === "GAMEOVER") {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillStyle = "rgba(0,0,0,0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#e74c3c";
-                ctx.font = "bold 24px Arial";
-                ctx.fillText("انتهت اللعبة! (Game Over)", 150, 150);
-            } else if (gameState === "WIN") {
-                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillStyle = "#ef4444";
+                ctx.font = "bold 16px Courier New";
+                ctx.fillText("GAME OVER", 200, 140);
+            } else if (gameState === "WIN_ALL") {
+                ctx.fillStyle = "rgba(0,0,0,0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = "#2ecc71";
-                ctx.font = "bold 24px Arial";
-                ctx.fillText("مبروك! لقد فزت بالمرحلة 🎉", 140, 150);
+                ctx.fillStyle = "#10b981";
+                ctx.font = "bold 14px Courier New";
+                ctx.fillText("أنهيت الـ 10 مراحل بنجاح! 🎉", 130, 140);
             }
         }
 
@@ -403,3 +410,4 @@
 
 </body>
 </html>
+
