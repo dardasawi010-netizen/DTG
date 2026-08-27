@@ -178,7 +178,7 @@
     .btn-danger { background-color: #e53e3e; color: white; }
     .btn-close { background-color: #4a5568; color: white; }
 
-    /* قائمة الطلبات */
+    /* قائمة الطلبات بالشكل الجديد المطلوب */
     .feed-container {
       display: flex;
       flex-direction: column;
@@ -187,39 +187,58 @@
     .truck-card {
       background-color: #1e2631;
       border-radius: 10px;
-      padding: 14px;
-      border-right: 4px solid #3182ce;
+      padding: 12px;
+      border: 1px solid #2d3748;
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
-    .truck-card.accepted {
-      border-right-color: #25D366;
-    }
-    .card-info {
+    .card-left-side {
       display: flex;
-      justify-content: space-between;
-      font-size: 0.9rem;
+      flex-direction: column;
+      gap: 6px;
+      flex: 1;
+      text-align: right;
     }
-    .badge {
-      background: #2d3748;
-      padding: 3px 6px;
-      border-radius: 4px;
-      font-size: 0.8rem;
+    .card-details-row {
+      font-size: 0.85rem;
+      color: #cbd5e0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    .btn-accept {
-      background-color: #25D366;
+    .card-route {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #ffffff;
+    }
+    .btn-whatsapp-card {
+      background-color: #27833a;
       color: white;
       border: none;
-      padding: 9px;
-      border-radius: 6px;
+      padding: 12px 14px;
+      border-radius: 8px;
       font-weight: bold;
       cursor: pointer;
       text-align: center;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: 0.2s;
     }
-    .btn-accept:hover {
-      background-color: #1ebe5d;
+    .btn-whatsapp-card:hover {
+      background-color: #216e30;
+    }
+    .btn-whatsapp-card:disabled {
+      background-color: #4a5568;
+      cursor: not-allowed;
+      color: #a0aec0;
     }
   </style>
 </head>
@@ -450,7 +469,6 @@
       closeWhatsappModal();
     }
 
-    // الانتقال للواتساب مباشرة عند قبول الطلب مع رسالة جاهزة
     function acceptAndChat(whatsappNumber, truckType, route) {
       playBeepSound();
       const text = encodeURIComponent(`مرحباً، لقد أطلعت على طلب شحن (${truckType}) المسار (${route}) وأرغب بالتواصل معك بشأنه.`);
@@ -469,32 +487,26 @@
       snapshot.forEach((childSnapshot) => {
         const data = childSnapshot.val();
         const isOwner = (data.sender === currentUser);
-        const routeText = `${data.currentLocation} إلى ${data.destination}`;
+        const routeText = `${data.currentLocation} الى ${data.destination}`;
 
         const card = document.createElement('div');
         card.className = `truck-card`;
 
         let actionButtonHTML = "";
         if (isOwner) {
-          actionButtonHTML = `<button class="btn-accept" disabled style="background-color: #2d3748; color: #a0aec0; cursor: not-allowed;">طلبك الخاص (لا يمكنك قبوله)</button>`;
+          actionButtonHTML = `<button class="btn-whatsapp-card" disabled>طلبك الخاص<br><span style="font-size:0.7rem; font-weight:normal;">لا يمكنك قبوله</span></button>`;
         } else {
-          actionButtonHTML = `<button class="btn-accept" onclick="acceptAndChat('${data.whatsappNumber}', '${data.truckType}', '${routeText}')">🟢 قبول الطلب (محادثة واتساب)</button>`;
+          actionButtonHTML = `<button class="btn-whatsapp-card" onclick="acceptAndChat('${data.whatsappNumber}', '${data.truckType}', '${routeText}')">قبول وطلب<br>التواصل</button>`;
         }
 
         card.innerHTML = `
-          <div class="card-info">
-            <strong>🚚 ${data.truckType}</strong>
-            <span class="badge">اللوحة: ${data.truckNo}</span>
+          <div class="card-left-side">
+            <div class="card-details-row">🚚 شاحنة: ${data.truckNo} | ⚖️ ${data.tons} طن | 🛣️</div>
+            <div class="card-route">${routeText}</div>
           </div>
-          <div class="card-info">
-            <span>⚖️ الأطنان: <strong>${data.tons} طن</strong></span>
-            <span>📱 واتساب: ${data.whatsappNumber}</span>
+          <div>
+            ${actionButtonHTML}
           </div>
-          <div style="font-size: 0.85rem; color: #a0aec0; border-top: 1px solid #2d3748; padding-top: 6px;">
-            📍 من: ${data.currentLocation} ➔ إلى: ${data.destination}
-          </div>
-          <div style="font-size: 0.75rem; color: #718096;">الناشر: ${data.sender}</div>
-          ${actionButtonHTML}
         `;
 
         feed.prepend(card);
