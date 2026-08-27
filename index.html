@@ -1,230 +1,171 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تطبيق الدردشة والواتساب - TrucksApp</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #e5ddd5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px 10px;
-    }
-    .chat-container {
-      width: 100%;
-      max-width: 480px;
-      height: 90vh;
-      background: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-header {
-      background-color: #075e54;
-      color: #ffffff;
-      padding: 16px;
-      text-align: center;
-      font-size: 1.1rem;
-      font-weight: bold;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    /* قسم الواتساب الجديد */
-    .whatsapp-section {
-      background-color: #128c7e;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      border-bottom: 2px solid #075e54;
-    }
-    .whatsapp-section label {
-      color: #ffffff;
-      font-size: 0.85rem;
-      font-weight: bold;
-    }
-    .whatsapp-inputs {
-      display: flex;
-      gap: 6px;
-    }
-    .whatsapp-inputs input {
-      padding: 8px;
-      border: none;
-      border-radius: 4px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-    .whatsapp-inputs input[type="tel"] {
-      width: 40%;
-    }
-    .whatsapp-inputs input[type="text"] {
-      width: 60%;
-    }
-    .whatsapp-btn {
-      background-color: #25d366;
-      color: #ffffff;
-      border: none;
-      padding: 8px;
-      border-radius: 4px;
-      font-weight: bold;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.2s;
-    }
-    .whatsapp-btn:hover {
-      background-color: #1eb859;
-    }
-    /* قسم الدردشة */
-    .chat-box {
-      flex: 1;
-      padding: 16px;
-      background-color: #efeae2;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .message {
-      background-color: #ffffff;
-      padding: 10px 14px;
-      border-radius: 8px;
-      max-width: 80%;
-      word-wrap: break-word;
-      font-size: 0.95rem;
-      color: #333333;
-      align-self: flex-start;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
-    }
-    .chat-input-area {
-      display: flex;
-      padding: 10px;
-      background-color: #f0f0f0;
-      border-top: 1px solid #cccccc;
-    }
-    .chat-input-area input {
-      flex: 1;
-      padding: 12px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      outline: none;
-      font-size: 1rem;
-      margin-left: 8px;
-    }
-    .chat-input-area button {
-      background-color: #075e54;
-      color: #ffffff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: background 0.2s;
-    }
-    .chat-input-area button:hover {
-      background-color: #128c7e;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تأكيد رقم الهاتف</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #12181f;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background-color: #1e2631;
+            border-radius: 16px;
+            padding: 28px 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border: 1px solid #2d3748;
+        }
+
+        .modal-card h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #f0f4f8;
+            line-height: 1.5;
+        }
+
+        .modal-card p.subtitle {
+            font-size: 14px;
+            color: #a0aec0;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 24px;
+            direction: ltr; /* لضبط الاتجاه من اليسار لليمين أثناء الكتابة */
+        }
+
+        .phone-input {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 18px;
+            letter-spacing: 2px;
+            background-color: #12181f;
+            color: #ffffff;
+            border: 2px dashed #4a5568;
+            border-radius: 8px;
+            outline: none;
+            text-align: left;
+            transition: border-color 0.3s;
+        }
+
+        .phone-input:focus {
+            border-color: #38a169;
+        }
+
+        .flag-icon {
+            width: 32px;
+            height: 22px;
+            border-radius: 3px;
+            object-fit: cover;
+            border: 1px solid #4a5568;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            direction: rtl;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn:active {
+            opacity: 0.8;
+        }
+
+        .btn-confirm {
+            background-color: #2e7d32;
+            color: #ffffff;
+        }
+
+        .btn-skip {
+            background-color: #4a5568;
+            color: #e2e8f0;
+        }
+
+        .error-msg {
+            color: #e53e3e;
+            font-size: 13px;
+            margin-top: -12px;
+            margin-bottom: 12px;
+            display: none;
+            text-align: right;
+            direction: rtl;
+        }
+    </style>
 </head>
 <body>
 
-  <div class="chat-container">
-    <div class="chat-header">تطبيق TrucksApp للمراسلة</div>
-    
-    <!-- قسم المراسلة السريعة عبر واتساب -->
-    <div class="whatsapp-section">
-      <label>مراسلة مباشرة عبر واتساب:</label>
-      <div class="whatsapp-inputs">
-        <input type="tel" id="wa-phone" placeholder="الرقم مع رمز الدولة (مثال: 96650...)" />
-        <input type="text" id="wa-msg" placeholder="الرسالة الاختيارية..." />
-      </div>
-      <button class="whatsapp-btn" id="wa-send-btn">فتح محادثة واتساب 💬</button>
+    <div class="modal-card">
+        <h2>نرجو إدخال رقم هاتفك الأردني</h2>
+        <p class="subtitle">(مثال: 07x xxxxxx)</p>
+
+        <div class="input-container">
+            <input type="tel" id="phoneNumber" class="phone-input" value="07" maxlength="10">
+            <!-- علم الأردن -->
+            <img class="flag-icon" src="https://flagcdn.com/w40/jo.png" alt="علم الأردن">
+        </div>
+
+        <div id="errorMsg" class="error-msg">يرجى إدخال رقم أردني صحيح يتكون من 10 أرقام ويبدأ بـ 07</div>
+
+        <div class="button-group">
+            <button class="btn btn-confirm" onclick="validatePhone()">تأكيد</button>
+            <button class="btn btn-skip" onclick="skipStep()">تخطي</button>
+        </div>
     </div>
 
-    <!-- قسم الدردشة المباشرة (Firebase) -->
-    <div class="chat-box" id="chat-box"></div>
-    <div class="chat-input-area">
-      <input type="text" id="message-input" placeholder="اكتب رسالتك هنا في التطبيق..." autocomplete="off">
-      <button id="send-btn">إرسال</button>
-    </div>
-  </div>
+    <script>
+        function validatePhone() {
+            const input = document.getElementById('phoneNumber').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
 
-  <!-- استدعاء مكتبات Firebase Compatible -->
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+            // تحقق من أن الرقم أردني صحيح (10 أرقام ويبدأ بـ 077 أو 078 أو 079)
+            const jordanRegex = /^07[789]\d{7}$/;
 
-  <script>
-    // إعدادات ومفاتيح الربط الخاصة بمشروعك
-    const firebaseConfig = {
-      apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
-      authDomain: "trucksapp-24ad7.firebaseapp.com",
-      projectId: "trucksapp-24ad7",
-      storageBucket: "trucksapp-24ad7.firebasestorage.app",
-      messagingSenderId: "254565994313",
-      appId: "1:254565994313:web:5df17e62fb68d94a9dd498",
-      measurementId: "G-Z5K2C79V50",
-      databaseURL: "https://trucksapp-24ad7-default-rtdb.firebaseio.com"
-    };
+            if (jordanRegex.test(input)) {
+                errorMsg.style.display = 'none';
+                alert('تم تأكيد الرقم بنجاح: ' + input);
+                // يمكنك توجيه المستخدم لصفحة أخرى هنا:
+                // window.location.href = "home.html";
+            } else {
+                errorMsg.style.display = 'block';
+            }
+        }
 
-    // تهيئة Firebase وقاعدة البيانات
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const messagesRef = database.ref('messages');
-
-    const chatBox = document.getElementById('chat-box');
-    const messageInput = document.getElementById('message-input');
-    const sendBtn = document.getElementById('send-btn');
-
-    // 1. برمجة زر المراسلة عبر واتساب
-    document.getElementById('wa-send-btn').addEventListener('click', () => {
-      const phoneInput = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
-      const msgInput = encodeURIComponent(document.getElementById('wa-msg').value.trim());
-
-      if (!phoneInput) {
-        alert("يرجى إدخال رقم الهاتف شاملاً رمز الدولة بدون علامة +");
-        return;
-      }
-
-      const waUrl = `https://wa.me/${phoneInput}?text=${msgInput}`;
-      window.open(waUrl, '_blank');
-    });
-
-    // 2. دالة إرسال الرسائل داخل التطبيق (Firebase)
-    function sendMessage() {
-      const text = messageInput.value.trim();
-      if (text !== "") {
-        messagesRef.push({
-          text: text,
-          timestamp: Date.now()
-        });
-        messageInput.value = "";
-      }
-    }
-
-    sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') sendMessage();
-    });
-
-    // 3. استقبال وتحديث الرسائل مباشرة
-    messagesRef.on('child_added', (snapshot) => {
-      const msg = snapshot.val();
-      const msgDiv = document.createElement('div');
-      msgDiv.classList.add('message');
-      msgDiv.textContent = msg.text;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    });
-  </script>
+        function skipStep() {
+            alert('تم التخطي');
+        }
+    </script>
 
 </body>
 </html>
