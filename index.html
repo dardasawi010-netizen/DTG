@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مغامرة الكتل 16-bit - 10 مراحل</title>
+    <title>ماريو الواقعية - 10 مراحل</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,13 +14,13 @@
             background-color: #0b0f19;
             color: #fff;
             text-align: center;
-            font-family: 'Courier New', Courier, monospace; /* خط كلاسيكي يوافق طابع 16-bit */
+            font-family: 'Courier New', Courier, monospace;
             margin: 0;
             padding: 10px;
             overflow: hidden;
         }
         h1 {
-            font-size: 16px;
+            font-size: 15px;
             margin: 4px 0;
             color: #f1c40f;
             text-transform: uppercase;
@@ -30,7 +30,7 @@
             justify-content: space-around;
             max-width: 600px;
             margin: 0 auto 5px auto;
-            font-size: 13px;
+            font-size: 12px;
             background: #1f2937;
             padding: 6px;
             border: 2px solid #374151;
@@ -47,7 +47,7 @@
             background: #000;
         }
         canvas {
-            image-rendering: pixelated; /* الحفاظ على مظهر البكسل النقي 16-bit */
+            image-rendering: pixelated;
             display: block;
             width: 100%;
             height: auto;
@@ -86,11 +86,32 @@
             height: 70px;
             border-radius: 50%;
         }
+        /* زر إعادة اللعبة */
+        #restartBtn {
+            display: none;
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #e74c3c;
+            color: white;
+            border: 2px solid #fff;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: 'Courier New', Courier, monospace;
+            border-radius: 8px;
+            cursor: pointer;
+            z-index: 10;
+        }
+        #restartBtn:active {
+            background: #c0392b;
+        }
     </style>
 </head>
 <body>
 
-    <h1>🎮 مغامرة 16-bit - نظام 10 مراحل</h1>
+    <h1>🍄 مغامرة ماريو الواقعية - 10 مراحل 🍄</h1>
     <div class="ui-panel">
         <div>المرحلة: <span id="stageNum">1</span>/10</div>
         <div>❤️ القلوب: <span id="lives">3</span></div>
@@ -100,6 +121,7 @@
 
     <div class="canvas-container">
         <canvas id="gameCanvas" width="512" height="288"></canvas>
+        <button id="restartBtn" onclick="restartGame()">إعادة اللعبة 🔄</button>
     </div>
 
     <div class="controls">
@@ -120,17 +142,18 @@
         const livesEl = document.getElementById("lives");
         const coinsEl = document.getElementById("coins");
         const scoreEl = document.getElementById("score");
+        const restartBtn = document.getElementById("restartBtn");
 
         let score = 0;
         let coins = 0;
         let lives = 3;
         let currentStage = 1;
-        let gameState = "PLAYING"; // PLAYING, STAGE_CLEAR, GAMEOVER, WIN_ALL
+        let gameState = "PLAYING"; // PLAYING, GAMEOVER, WIN_ALL
 
         let player = {
             x: 32,
             y: 150,
-            width: 16, // حجم 16 بكسل حقيقي
+            width: 16,
             height: 24,
             speed: 3,
             dx: 0,
@@ -142,7 +165,6 @@
         const gravity = 0.4;
         let keys = {};
 
-        // هيكل بيانات الـ 10 مراحل (منصات، أعداء، عملات حسب رقم المرحلة)
         function loadStage(stage) {
             player.x = 32;
             player.y = 150;
@@ -152,7 +174,6 @@
                 { x: 0, y: 256, width: 800 + (stage * 50), height: 32, type: "ground" }
             ];
 
-            // إضافة عوائق ولؤكي بلوك تزيد صعوباتها تدريجياً في الـ 10 مراحل
             let luckyCount = 2 + Math.floor(stage / 2);
             for (let i = 0; i < luckyCount; i++) {
                 platforms.push({
@@ -183,7 +204,7 @@
                     y: 240,
                     width: 16,
                     height: 16,
-                    speed: 1 + (stage * 0.2), // زيادة سرعة الأعداء تدريجياً
+                    speed: 1 + (stage * 0.2),
                     minX: 180 + (i * 120),
                     maxX: 280 + (i * 120),
                     dir: 1
@@ -197,7 +218,6 @@
 
         let currentWorld = loadStage(currentStage);
 
-        // التحكم باللوحة واللمس
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
             if ((e.code === "Space" || e.code === "ArrowUp") && player.grounded && gameState === "PLAYING") jump();
@@ -220,6 +240,20 @@
             player.grounded = false;
         }
 
+        function restartGame() {
+            score = 0;
+            coins = 0;
+            lives = 3;
+            currentStage = 1;
+            gameState = "PLAYING";
+            scoreEl.innerText = score;
+            coinsEl.innerText = coins;
+            livesEl.innerText = lives;
+            stageNumEl.innerText = currentStage;
+            restartBtn.style.display = "none";
+            currentWorld = loadStage(currentStage);
+        }
+
         function update() {
             if (gameState !== "PLAYING") return;
 
@@ -233,7 +267,6 @@
 
             if (player.x < 0) player.x = 0;
 
-            // اصطدام المنصات
             player.grounded = false;
             currentWorld.platforms.forEach(plat => {
                 if (
@@ -256,7 +289,6 @@
                 }
             });
 
-            // جمع العملات
             currentWorld.collectables.forEach(item => {
                 if (!item.collected) {
                     let dist = Math.hypot((player.x + 8) - item.x, (player.y + 12) - item.y);
@@ -270,7 +302,6 @@
                 }
             });
 
-            // الأعداء
             currentWorld.enemies.forEach(enemy => {
                 enemy.x += enemy.speed * enemy.dir;
                 if (enemy.x < enemy.minX || enemy.x > enemy.maxX) enemy.dir *= -1;
@@ -291,12 +322,14 @@
                         livesEl.innerText = lives;
                         player.x = 32;
                         player.y = 150;
-                        if (lives <= 0) gameState = "GAMEOVER";
+                        if (lives <= 0) {
+                            gameState = "GAMEOVER";
+                            restartBtn.style.display = "block";
+                        }
                     }
                 }
             });
 
-            // بوابة نهاية المرحلة
             let goal = currentWorld.goal;
             if (
                 player.x < goal.x + goal.width &&
@@ -313,41 +346,39 @@
                 }
             }
 
-            // السقوط في الحفر
             if (player.y > canvas.height) {
                 lives--;
                 livesEl.innerText = lives;
                 player.x = 32;
                 player.y = 150;
                 player.dy = 0;
-                if (lives <= 0) gameState = "GAMEOVER";
+                if (lives <= 0) {
+                    gameState = "GAMEOVER";
+                    restartBtn.style.display = "block";
+                }
             }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // الكاميرا الأفقية الكلاسيكية
             ctx.save();
             let cameraX = -player.x + 100;
             if (cameraX > 0) cameraX = 0;
             ctx.translate(cameraX, 0);
 
-            // خلفية ألوان 16-bit تتغير بتغير المرحلة
             ctx.fillStyle = currentStage % 2 === 0 ? "#111827" : "#1f1f2e";
             ctx.fillRect(-cameraX, 0, canvas.width, canvas.height);
 
-            // رسم البوابة
             ctx.fillStyle = "#8b5cf6";
             ctx.fillRect(currentWorld.goal.x, currentWorld.goal.y, currentWorld.goal.width, currentWorld.goal.height);
 
-            // رسم المنصات واللوكي بلوك بنمط 16-bit
             currentWorld.platforms.forEach(plat => {
                 if (plat.type === "ground") {
                     ctx.fillStyle = "#059669";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                     ctx.fillStyle = "#10b981";
-                    ctx.fillRect(plat.x, plat.y, plat.width, 4); // عشب بكسلي
+                    ctx.fillRect(plat.x, plat.y, plat.width, 4);
                 } else {
                     ctx.fillStyle = plat.opened ? "#4b5563" : "#f59e0b";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
@@ -359,7 +390,6 @@
                 }
             });
 
-            // رسم العملات
             currentWorld.collectables.forEach(item => {
                 if (!item.collected) {
                     ctx.fillStyle = "#fbbf24";
@@ -369,27 +399,27 @@
                 }
             });
 
-            // رسم الأعداء
             currentWorld.enemies.forEach(enemy => {
                 ctx.fillStyle = "#dc2626";
                 ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
             });
 
-            // رسم اللاعب (16 بكسل متناسق)
-            ctx.fillStyle = "#3b82f6";
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-            ctx.fillStyle = "#1d4ed8";
-            ctx.fillRect(player.x + 2, player.y, 12, 6); // قبعة بكسلية
+            // رسم ماريو الواقعي (أحمر وأزرق)
+            ctx.fillStyle = "#e52521"; // قميص ماريو الأحمر
+            ctx.fillRect(player.x, player.y + 6, player.width, player.height - 6);
+            ctx.fillStyle = "#002fbe"; // بنطال ماريو الأزرق
+            ctx.fillRect(player.x + 2, player.y + 14, player.width - 4, 10);
+            ctx.fillStyle = "#e52521"; // القبعة
+            ctx.fillRect(player.x, player.y, player.width, 6);
 
             ctx.restore();
 
-            // شاشات الحالة النهائية
             if (gameState === "GAMEOVER") {
                 ctx.fillStyle = "rgba(0,0,0,0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
                 ctx.fillStyle = "#ef4444";
                 ctx.font = "bold 16px Courier New";
-                ctx.fillText("GAME OVER", 200, 140);
+                ctx.fillText("لقد خسرت يا اهبل", 135, 120);
             } else if (gameState === "WIN_ALL") {
                 ctx.fillStyle = "rgba(0,0,0,0.85)";
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -410,4 +440,3 @@
 
 </body>
 </html>
-
