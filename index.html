@@ -188,6 +188,13 @@
             margin-bottom: 8px;
         }
 
+        .no-data {
+            text-align: center;
+            color: #718096;
+            font-size: 13px;
+            margin-top: 30px;
+        }
+
         /* تصميم أشرطة الشاحنات المتاحة */
         .truck-ticker-bar {
             background-color: #12181f;
@@ -379,10 +386,18 @@
     </div>
 
     <script>
-        let trucksTickers = [
-            { plate: "أردن 12-8831", tons: "35 طن", route: "عمان - إربد", contact: "0791122334" },
-            { plate: "أردن 5-9920", tons: "25 طن", route: "الزرقاء - المفرق", contact: "0785566778" }
-        ];
+        // دالة لجلب الطلبات المحفوظة (أو مصفوفة فارغة إذا لم تكن موجودة)
+        function getStoredTickers() {
+            const data = localStorage.getItem('trucksTickersList');
+            if (data) {
+                return JSON.parse(data);
+            }
+            return []; // تم حذف الشاحنات الوهمية السابقة لتكون القائمة نظيفة
+        }
+
+        function saveTickers(tickers) {
+            localStorage.setItem('trucksTickersList', JSON.stringify(tickers));
+        }
 
         function checkLoginStatus() {
             const savedPhone = localStorage.getItem('truckAppUserPhone');
@@ -440,12 +455,15 @@
                 return;
             }
 
+            let trucksTickers = getStoredTickers();
             trucksTickers.unshift({
                 plate: plate,
                 tons: tons + " طن",
                 route: route,
                 contact: contact
             });
+
+            saveTickers(trucksTickers);
 
             document.getElementById('truckPlate').value = '';
             document.getElementById('truckTons').value = '';
@@ -459,6 +477,13 @@
         function renderTickers() {
             const container = document.getElementById('trucksTickerList');
             container.innerHTML = '';
+
+            const trucksTickers = getStoredTickers();
+
+            if (trucksTickers.length === 0) {
+                container.innerHTML = '<div class="no-data">لا توجد أشرطة شاحنات متاحة حالياً. أضف شاحنتك الآن!</div>';
+                return;
+            }
 
             trucksTickers.forEach((item, index) => {
                 const bar = document.createElement('div');
@@ -490,8 +515,14 @@
             btn.style.backgroundColor = '#1a365d';
             btn.disabled = true;
         }
+
+        // الاستماع لتحديثات التخزين المحلي لضمان المزامنة الفورية في حال فتح التطبيق على متصفحات متعددة
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'trucksTickersList') {
+                renderTickers();
+            }
+        });
     </script>
 
 </body>
 </html>
-
