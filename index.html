@@ -69,14 +69,28 @@
       font-size: 1.1rem;
       color: #2e7d32;
     }
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
     .tdg-title {
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       font-weight: bold;
       color: #3182ce;
       background: #12181f;
       padding: 4px 10px;
       border-radius: 6px;
       border: 1px solid #2d3748;
+    }
+    .settings-btn {
+      background: #2d3748;
+      border: none;
+      color: white;
+      padding: 6px 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
     }
 
     /* مربعات الخيارات الرئيسية */
@@ -161,37 +175,8 @@
       cursor: pointer;
     }
     .btn-submit { background-color: #2e7d32; color: white; }
+    .btn-danger { background-color: #e53e3e; color: white; }
     .btn-close { background-color: #4a5568; color: white; }
-
-    /* مجموعة المحادثة العامة لكل الناس */
-    .chat-group-section {
-      background-color: #1e2631;
-      border-radius: 12px;
-      border: 1px solid #2d3748;
-      padding: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .chat-box {
-      height: 180px;
-      background: #12181f;
-      border-radius: 8px;
-      border: 1px solid #2d3748;
-      padding: 8px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-    .chat-msg {
-      background: #252f3e;
-      padding: 6px 10px;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      word-break: break-word;
-    }
-    .chat-msg strong { color: #48bb78; }
 
     /* قائمة الطلبات */
     .feed-container {
@@ -210,8 +195,7 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.2);
     }
     .truck-card.accepted {
-      border-right-color: #e53e3e;
-      opacity: 0.7;
+      border-right-color: #25D366;
     }
     .card-info {
       display: flex;
@@ -225,17 +209,17 @@
       font-size: 0.8rem;
     }
     .btn-accept {
-      background-color: #3182ce;
+      background-color: #25D366;
       color: white;
       border: none;
-      padding: 8px;
+      padding: 9px;
       border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
+      text-align: center;
     }
-    .btn-accept:disabled {
-      background-color: #4a5568;
-      cursor: not-allowed;
+    .btn-accept:hover {
+      background-color: #1ebe5d;
     }
   </style>
 </head>
@@ -255,7 +239,10 @@
   <div class="app-container" id="appMain">
     <div class="header-card">
       <h1>🚚 تطبيق الشاحنات</h1>
-      <div class="tdg-title">TDG</div>
+      <div class="header-left">
+        <div class="tdg-title">TDG</div>
+        <button class="settings-btn" onclick="openSettingsModal()" title="الإعدادات">⚙️</button>
+      </div>
     </div>
 
     <!-- مربعات الخيارات الرئيسية -->
@@ -266,23 +253,25 @@
       </div>
       <div class="option-box" onclick="openWhatsappModal()">
         <span style="font-size: 1.5rem;">💬</span>
-        <span>مراسلة واتساب</span>
-      </div>
-    </div>
-
-    <!-- مجموعة دردشة جماعية لكل المستخدمين -->
-    <div class="chat-group-section">
-      <h3 style="font-size: 0.95rem; color: #a0aec0;">💬 مجموعة دردشة عملاء وسائقي TDG</h3>
-      <div class="chat-box" id="groupChatBox"></div>
-      <div style="display: flex; gap: 6px;">
-        <input type="text" id="groupMsgInput" class="form-control" placeholder="اكتب رسالة للجميع...">
-        <button class="btn btn-submit" style="width: 80px;" onclick="sendGroupMessage()">إرسال</button>
+        <span>مراسلة واتساب مباشرة</span>
       </div>
     </div>
 
     <!-- قائمة الطلبات المتاحة للجميع -->
-    <h3 style="font-size: 0.95rem; color: #a0aec0;">الطلبات والشاحنات المنشورة للجميع:</h3>
+    <h3 style="font-size: 0.95rem; color: #a0aec0; margin-top: 5px;">الطلبات والشاحنات المنشورة للجميع:</h3>
     <div class="feed-container" id="requestsFeed"></div>
+  </div>
+
+  <!-- نافذة إعدادات التطبيق (تسجيل الخروج) -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <h3>إعدادات الحساب</h3>
+      <p style="font-size: 0.85rem; color: #a0aec0;" id="settingsUserInfo"></p>
+      <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+        <button class="btn btn-danger" onclick="logoutUser()">تسجيل الخروج من الحساب</button>
+        <button class="btn btn-close" onclick="closeSettingsModal()">إغلاق</button>
+      </div>
+    </div>
   </div>
 
   <!-- نافذة طلب الشحن -->
@@ -309,6 +298,9 @@
       <label style="font-size: 0.8rem; color:#a0aec0;">الوجهة (إلى أين ذاهبة):</label>
       <input type="text" id="destination" class="form-control" placeholder="مثال: العقبة">
 
+      <label style="font-size: 0.8rem; color:#a0aec0;">رقم الواتساب للتواصل (مع رمز الدولة):</label>
+      <input type="tel" id="whatsappNumber" class="form-control" placeholder="مثال: 962790000000">
+
       <div class="modal-buttons">
         <button class="btn btn-submit" onclick="sendTruckRequest()">تأكيد ونشر للجميع</button>
         <button class="btn btn-close" onclick="closeShipmentModal()">إلغاء</button>
@@ -316,11 +308,11 @@
     </div>
   </div>
 
-  <!-- نافذة واتساب -->
+  <!-- نافذة واتساب السريعة -->
   <div class="modal" id="whatsappModal">
     <div class="modal-content">
       <h3>مراسلة عبر واتساب</h3>
-      <label style="font-size: 0.8rem; color:#a0aec0;">يجب كتابة رقم الهاتف (مع رمز الدولة):</label>
+      <label style="font-size: 0.8rem; color:#a0aec0;">رقم الهاتف (مع رمز الدولة):</label>
       <input type="tel" id="wa-phone" class="form-control" placeholder="مثال: 962790000000">
 
       <label style="font-size: 0.8rem; color:#a0aec0;">الرسالة:</label>
@@ -328,7 +320,7 @@
 
       <div class="modal-buttons">
         <button class="btn btn-submit" onclick="openWhatsappChat()">فتح الواتساب</button>
-        <button class="btn btn-close" onclick="closeWhatsappModal()">إغلاق</button>
+        <button class="btn btn-close" onclick="closeWhatsappModal()">إلغاء</button>
       </div>
     </div>
   </div>
@@ -352,29 +344,33 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
     const requestsRef = database.ref('tdg_truck_requests');
-    const groupChatRef = database.ref('tdg_group_chat');
 
-    let currentUser = "";
+    let currentUser = localStorage.getItem('tdg_current_user') || "";
 
-    // تشغيل صوت تنبيهي (تأثير صوتي عند النقر أو النشر)
+    window.onload = function() {
+      if (currentUser) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('appMain').style.display = 'flex';
+      }
+    };
+
     function playBeepSound() {
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const oscillator = audioCtx.createOscillator();
         const gainNode = audioCtx.createGain();
         oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime); // تردد صوت تنبيهي ناعم
-        gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        oscillator.frequency.setValueAtTime(587.33, audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(0.08, audioCtx.currentTime);
         oscillator.connect(gainNode);
         gainNode.connect(audioCtx.destination);
         oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.15);
+        oscillator.stop(audioCtx.currentTime + 0.12);
       } catch (e) {
-        console.log("Audio not supported");
+        console.log("Audio error");
       }
     }
 
-    // تسجيل الدخول
     function loginUser() {
       const val = document.getElementById('authInput').value.trim();
       if (!val) {
@@ -382,31 +378,44 @@
         return;
       }
       currentUser = val;
+      localStorage.setItem('tdg_current_user', currentUser);
       document.getElementById('auth-screen').style.display = 'none';
       document.getElementById('appMain').style.display = 'flex';
       playBeepSound();
     }
 
-    // التحكم بالنوافذ المنبثقة
-    function openShipmentModal() { document.getElementById('shipmentModal').style.display = 'flex'; }
-    function closeShipmentModal() { document.getElementById('shipmentModal').style.display = 'none'; }
-    function openWhatsappModal() { document.getElementById('whatsappModal').style.display = 'flex'; }
-    function closeWhatsappModal() { document.getElementById('whatsappModal').style.display = 'none'; }
+    function logoutUser() {
+      playBeepSound();
+      localStorage.removeItem('tdg_current_user');
+      location.reload();
+    }
 
-    // إرسال طلب الشحن ونشره للجميع بصدق
+    function openShipmentModal() { playBeepSound(); document.getElementById('shipmentModal').style.display = 'flex'; }
+    function closeShipmentModal() { playBeepSound(); document.getElementById('shipmentModal').style.display = 'none'; }
+    function openWhatsappModal() { playBeepSound(); document.getElementById('whatsappModal').style.display = 'flex'; }
+    function closeWhatsappModal() { playBeepSound(); document.getElementById('whatsappModal').style.display = 'none'; }
+    
+    function openSettingsModal() { 
+      playBeepSound(); 
+      document.getElementById('settingsUserInfo').innerText = "الحساب الحالي: " + currentUser;
+      document.getElementById('settingsModal').style.display = 'flex'; 
+    }
+    function closeSettingsModal() { playBeepSound(); document.getElementById('settingsModal').style.display = 'none'; }
+
     function sendTruckRequest() {
       const truckType = document.getElementById('truckType').value;
       const tons = document.getElementById('tons').value.trim();
       const truckNo = document.getElementById('truckNo').value.trim();
       const currentLocation = document.getElementById('currentLocation').value.trim();
       const destination = document.getElementById('destination').value.trim();
+      const whatsappNumber = document.getElementById('whatsappNumber').value.trim().replace(/[^0-9]/g, '');
 
-      if (!tons || !truckNo || !currentLocation || !destination) {
-        alert('الرجاء تعبئة جميع الحقول بدقة.');
+      if (!tons || !truckNo || !currentLocation || !destination || !whatsappNumber) {
+        alert('الرجاء تعبئة جميع الحقول بدقة بما فيها رقم الواتساب!');
         return;
       }
 
-      playBeepSound(); // تشغيل الصوت عند التأكيد والنشر
+      playBeepSound();
 
       requestsRef.push({
         sender: currentUser,
@@ -415,7 +424,7 @@
         truckNo: truckNo,
         currentLocation: currentLocation,
         destination: destination,
-        status: 'open',
+        whatsappNumber: whatsappNumber,
         timestamp: Date.now()
       });
 
@@ -423,11 +432,11 @@
       document.getElementById('truckNo').value = '';
       document.getElementById('currentLocation').value = '';
       document.getElementById('destination').value = '';
+      document.getElementById('whatsappNumber').value = '';
       closeShipmentModal();
       alert('تم إرسال الطلب ونشره بنجاح لجميع المستخدمين!');
     }
 
-    // مراسلة الواتساب (إلزامية إدخال الرقم)
     function openWhatsappChat() {
       const phone = document.getElementById('wa-phone').value.trim().replace(/[^0-9]/g, '');
       const msg = encodeURIComponent(document.getElementById('wa-msg').value.trim());
@@ -441,51 +450,36 @@
       closeWhatsappModal();
     }
 
-    // مجموعة الدردشة الجماعية لكل الناس
-    function sendGroupMessage() {
-      const text = document.getElementById('groupMsgInput').value.trim();
-      if (!text) return;
-
+    // الانتقال للواتساب مباشرة عند قبول الطلب مع رسالة جاهزة
+    function acceptAndChat(whatsappNumber, truckType, route) {
       playBeepSound();
-      groupChatRef.push({
-        user: currentUser,
-        text: text,
-        timestamp: Date.now()
-      });
-      document.getElementById('groupMsgInput').value = '';
+      const text = encodeURIComponent(`مرحباً، لقد أطلعت على طلب شحن (${truckType}) المسار (${route}) وأرغب بالتواصل معك بشأنه.`);
+      window.open(`https://wa.me/${whatsappNumber}?text=${text}`, '_blank');
     }
 
-    // استقبال رسائل المجموعة الجماعية
-    groupChatRef.on('child_added', (snapshot) => {
-      const data = snapshot.val();
-      const chatBox = document.getElementById('groupChatBox');
-      const msgDiv = document.createElement('div');
-      msgDiv.className = 'chat-msg';
-      msgDiv.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
-      chatBox.appendChild(msgDiv);
-      chatBox.scrollTop = chatBox.scrollHeight;
-    });
-
-    // قبول وحجز الطلب
-    function acceptRequest(key) {
-      playBeepSound();
-      database.ref('tdg_truck_requests/' + key).update({
-        status: 'accepted',
-        acceptedBy: currentUser
-      });
-    }
-
-    // الاستماع الفوري للطلبات لجميع الهواتف
     requestsRef.on('value', (snapshot) => {
       const feed = document.getElementById('requestsFeed');
       feed.innerHTML = '';
 
+      if (!snapshot.exists()) {
+        feed.innerHTML = '<div style="color: #718096; text-align: center; padding: 20px;">لا توجد طلبات شحن متاحة حالياً.</div>';
+        return;
+      }
+
       snapshot.forEach((childSnapshot) => {
-        const key = childSnapshot.key;
         const data = childSnapshot.val();
+        const isOwner = (data.sender === currentUser);
+        const routeText = `${data.currentLocation} إلى ${data.destination}`;
 
         const card = document.createElement('div');
-        card.className = `truck-card ${data.status === 'accepted' ? 'accepted' : ''}`;
+        card.className = `truck-card`;
+
+        let actionButtonHTML = "";
+        if (isOwner) {
+          actionButtonHTML = `<button class="btn-accept" disabled style="background-color: #2d3748; color: #a0aec0; cursor: not-allowed;">طلبك الخاص (لا يمكنك قبوله)</button>`;
+        } else {
+          actionButtonHTML = `<button class="btn-accept" onclick="acceptAndChat('${data.whatsappNumber}', '${data.truckType}', '${routeText}')">🟢 قبول الطلب (محادثة واتساب)</button>`;
+        }
 
         card.innerHTML = `
           <div class="card-info">
@@ -494,15 +488,13 @@
           </div>
           <div class="card-info">
             <span>⚖️ الأطنان: <strong>${data.tons} طن</strong></span>
-            <span>الحالة: ${data.status === 'accepted' ? '<span style="color:#e53e3e">محجوزة 🔒</span>' : '<span style="color:#38a169">متاح 🟢</span>'}</span>
+            <span>📱 واتساب: ${data.whatsappNumber}</span>
           </div>
           <div style="font-size: 0.85rem; color: #a0aec0; border-top: 1px solid #2d3748; padding-top: 6px;">
             📍 من: ${data.currentLocation} ➔ إلى: ${data.destination}
           </div>
           <div style="font-size: 0.75rem; color: #718096;">الناشر: ${data.sender}</div>
-          <button class="btn-accept" ${data.status === 'accepted' ? 'disabled' : ''} onclick="acceptRequest('${key}')">
-            ${data.status === 'accepted' ? 'تم الحجز' : 'أنا أقبل (حجز الشاحنة)'}
-          </button>
+          ${actionButtonHTML}
         `;
 
         feed.prepend(card);
