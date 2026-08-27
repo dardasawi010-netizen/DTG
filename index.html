@@ -3,17 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TDT - عالم الطخ بذكاء اصطناعي وصعوبات متعددة</title>
+    <title>TDT - لعبة الطخ بنمط بكسل ماين كرافت</title>
     <style>
+        /* فرض نمط البكسل الحاد لجميع العناصر */
         * {
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
         body {
             margin: 0;
             overflow: hidden;
-            background-color: #1e1b4b;
+            background-color: #0f172a;
             font-family: 'Courier New', Courier, monospace;
             text-align: center;
         }
@@ -23,7 +26,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            background: #1e293b;
+            border: 8px solid #334155;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -32,55 +36,56 @@
             color: white;
         }
         h1 {
-            font-size: 50px;
-            color: #fef08a;
+            font-size: 45px;
+            color: #facc15;
             margin-bottom: 5px;
             letter-spacing: 4px;
-            text-shadow: 3px 3px 0px #000;
+            text-shadow: 4px 4px 0px #000;
         }
         .menu-btn {
-            background: #22c55e;
+            background: #16a34a;
             color: white;
-            border: 3px solid #fff;
-            padding: 12px 35px;
-            font-size: 20px;
+            border: 4px solid #000;
+            padding: 12px 30px;
+            font-size: 18px;
             font-weight: bold;
-            border-radius: 15px;
+            border-radius: 0px; /* بكسل حاد */
             cursor: pointer;
             margin: 10px;
             font-family: 'Courier New', Courier, monospace;
-            box-shadow: 0 5px 0px #15803d;
-            transition: 0.1s;
+            box-shadow: 0 6px 0px #14532d;
+            transition: 0.05s;
         }
         .menu-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0px #15803d;
+            box-shadow: 0 2px 0px #14532d;
         }
         .options-box {
-            background: rgba(0, 0, 0, 0.25);
-            padding: 12px 20px;
-            border-radius: 15px;
-            border: 2px dashed rgba(255, 255, 255, 0.4);
-            margin-bottom: 10px;
+            background: #0f172a;
+            padding: 15px 20px;
+            border: 4px solid #475569;
+            margin-bottom: 15px;
             text-align: right;
-            max-width: 400px;
+            max-width: 420px;
         }
         .select-group {
-            margin: 8px 0;
+            margin: 10px 0;
             font-size: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 15px;
+            color: #cbd5e1;
+            font-weight: bold;
         }
         select {
-            padding: 4px 10px;
+            padding: 5px 10px;
             font-family: 'Courier New', Courier, monospace;
-            background: #ffffff;
-            color: #000;
+            background: #e2e8f0;
+            color: #0f172a;
             font-weight: bold;
-            border: 2px solid #000;
-            border-radius: 8px;
+            border: 3px solid #000;
+            border-radius: 0px;
             outline: none;
             cursor: pointer;
         }
@@ -113,50 +118,77 @@
         }
         .hud-box {
             color: #fff;
-            font-size: 15px;
+            font-size: 13px;
             font-weight: bold;
-            background: #3b82f6;
-            padding: 4px 12px;
-            border-radius: 8px;
-            border: 2px solid #fff;
-            box-shadow: 0 3px 0px #1d4ed8;
+            background: #1e293b;
+            padding: 6px 12px;
+            border: 3px solid #000;
+            box-shadow: 0 3px 0px #000;
         }
-        #xpContainer {
+        
+        /* أشرطة بكسلية بارزة */
+        .bar-container {
             width: 100%;
             max-width: 500px;
-            height: 15px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px solid #fff;
-            border-radius: 8px;
+            height: 14px;
+            background: #0f172a;
+            border: 3px solid #000;
             overflow: hidden;
-            box-shadow: 0 3px 0px rgba(0,0,0,0.3);
+            box-shadow: 0 3px 0px rgba(0,0,0,0.5);
+        }
+        #hpBar {
+            width: 100%;
+            height: 100%;
+            background: #22c55e;
+            transition: width 0.15s steps(10);
         }
         #xpBar {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #facc15, #22c55e);
-            transition: width 0.3s ease-out;
+            background: #3b82f6;
+            transition: width 0.2s steps(10);
         }
 
+        /* علامة القنص البكسلية */
         #crosshair {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #fef08a;
-            font-size: 28px;
+            color: #ef4444;
+            font-size: 30px;
+            font-weight: bold;
             pointer-events: none;
             text-shadow: 2px 2px 0px #000;
+            z-index: 25;
         }
+
+        /* منظار السكوب الكلاسيكي */
         #scopeOverlay {
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            border: 50px solid rgba(0, 0, 0, 0.95);
             pointer-events: none;
-            box-sizing: border-box;
             z-index: 15;
         }
+        .scope-vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            box-shadow: inset 0 0 150px 100px rgba(0, 0, 0, 0.98);
+        }
+        .scope-crosshair-h {
+            position: absolute;
+            top: 50%; left: 10%; width: 80%; height: 4px;
+            background: #ef4444;
+            transform: translateY(-50%);
+        }
+        .scope-crosshair-v {
+            position: absolute;
+            top: 10%; left: 50%; width: 4px; height: 80%;
+            background: #ef4444;
+            transform: translateX(-50%);
+        }
+
         .game-controls {
             position: absolute;
             bottom: 25px;
@@ -171,21 +203,21 @@
         .control-btn {
             width: 75px;
             height: 75px;
-            border: 3px solid #fff;
-            border-radius: 50%;
+            border: 4px solid #000;
+            border-radius: 0px; /* بكسل حاد */
             color: white;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             outline: none;
             cursor: pointer;
-            box-shadow: 0 4px 0px rgba(0,0,0,0.3);
+            box-shadow: 0 5px 0px #000;
         }
         .control-btn:active {
             transform: translateY(4px);
-            box-shadow: 0 1px 0px rgba(0,0,0,0.3);
+            box-shadow: 0 1px 0px #000;
         }
-        #shootBtn { background: #ef4444; }
-        #scopeBtn { background: #06b6d4; }
+        #shootBtn { background: #dc2626; }
+        #scopeBtn { background: #0284c7; }
     </style>
     <!-- مكتبة Three.js الخفيفة -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -195,7 +227,7 @@
     <!-- الشاشة الرئيسية -->
     <div id="mainMenu" class="screen">
         <h1>TDT</h1>
-        <p style="color: #fef08a; margin-bottom: 10px; font-size: 15px; font-weight: bold;">عالم الذكاء الاصطناعي والصعوبات المتعددة</p>
+        <p style="color: #facc15; margin-bottom: 15px; font-size: 14px; font-weight: bold;">عالم الطخ البكسلي (ماين كرافت ستايل)</p>
         
         <div class="options-box">
             <div class="select-group">
@@ -209,9 +241,9 @@
             <div class="select-group">
                 <label>🔫 السلاح:</label>
                 <select id="weaponSelect">
-                    <option value="pistol">مسدس خفيف</option>
-                    <option value="rifle">رشاش سريع</option>
-                    <option value="shotgun">شوتجان واسع</option>
+                    <option value="pistol">مسدس كلاسيكي</option>
+                    <option value="rifle">رشاش بكسل</option>
+                    <option value="shotgun">شوتجان ثقيل</option>
                 </select>
             </div>
 
@@ -242,15 +274,21 @@
         <div class="hud-top">
             <div class="hud-row">
                 <div class="hud-box">النقاط: <span id="score">0</span></div>
-                <div class="hud-box" style="background: #8b5cf6;">المستوى: <span id="level">1</span></div>
+                <div class="hud-box">المستوى: <span id="level">1</span></div>
             </div>
-            <div id="xpContainer">
-                <div id="xpBar"></div>
-            </div>
+            <div style="width: 100%; max-width: 500px; text-align: right; font-size: 10px; color: #fff; font-weight: bold;">صحة البطل (HP) - تتعبى فل مع كل طخة!</div>
+            <div class="bar-container"><div id="hpBar"></div></div>
+            <div style="width: 100%; max-width: 500px; text-align: right; font-size: 10px; color: #fff; font-weight: bold; margin-top: 2px;">مؤشر الخبرة (XP)</div>
+            <div class="bar-container"><div id="xpBar"></div></div>
         </div>
 
-        <div id="crosshair">⌖</div>
-        <div id="scopeOverlay"></div>
+        <div id="crosshair">+</div>
+
+        <div id="scopeOverlay">
+            <div class="scope-vignette"></div>
+            <div class="scope-crosshair-h"></div>
+            <div class="scope-crosshair-v"></div>
+        </div>
 
         <div class="game-controls">
             <button class="control-btn" id="scopeBtn" onclick="toggleScope()">🔭 سكوب</button>
@@ -259,10 +297,10 @@
     </div>
 
     <!-- شاشة الخسارة -->
-    <div id="gameOverScreen" class="screen" style="display: none; background: linear-gradient(135deg, #7f1d1d, #991b1b);">
-        <h1 style="color: #f87171; font-size: 45px; text-shadow: 2px 2px 0px #000;">لقد خسرت يا اهبل</h1>
-        <p id="finalScoreText" style="font-size: 20px; margin-bottom: 20px; color: #fef08a; font-weight: bold;"></p>
-        <button class="menu-btn" style="background: #eab308; box-shadow: 0 5px 0px #ca8a04;" onclick="returnToMenu()">إعادة المحاولة 🔄</button>
+    <div id="gameOverScreen" class="screen" style="display: none; background: #450a0a; border: 8px solid #7f1d1d;">
+        <h1 style="color: #f87171; font-size: 38px; text-shadow: 3px 3px 0px #000;">لقد خسرت يا اهبل</h1>
+        <p id="finalScoreText" style="font-size: 18px; margin-bottom: 20px; color: #fef08a; font-weight: bold;"></p>
+        <button class="menu-btn" style="background: #ca8a04; box-shadow: 0 5px 0px #713f12;" onclick="returnToMenu()">إعادة المحاولة 🔄</button>
     </div>
 
     <audio id="bgMusic" loop>
@@ -276,6 +314,7 @@
         let level = 1;
         let xp = 0;
         let maxXp = 500;
+        let playerHp = 100;
         let difficultyMultiplier = 1.0;
         let isGameOver = false;
         let isScoped = false;
@@ -292,7 +331,6 @@
         }
 
         function startGame() {
-            // تحديد معامل الصعوبة بناءً على الاختيار
             const diff = document.getElementById("difficultySelect").value;
             if (diff === 'easy') difficultyMultiplier = 0.7;
             else if (diff === 'normal') difficultyMultiplier = 1.0;
@@ -313,7 +351,7 @@
 
         function init3D() {
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x38bdf8);
+            scene.background = new THREE.Color(0x38bdf8); // سماء بكسلية زرقاء
 
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
             camera.position.set(0, 1.6, 5);
@@ -322,19 +360,19 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
             document.body.appendChild(renderer.domElement);
 
-            const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2);
             scene.add(ambientLight);
 
-            // أرضية العالم
+            // أرضية بنمط بكسل العشب (أخضر فاقع)
             const floorGeo = new THREE.PlaneGeometry(80, 80);
-            const floorMat = new THREE.MeshBasicMaterial({ color: 0x22c55e });
+            const floorMat = new THREE.MeshBasicMaterial({ color: 0x16a34a });
             const floor = new THREE.Mesh(floorGeo, floorMat);
             floor.rotation.x = -Math.PI / 2;
             scene.add(floor);
 
-            // جدار الطخ الخلفي
+            // جدار الخلفية البكسلي
             const wallGeo = new THREE.PlaneGeometry(80, 30);
-            const wallMat = new THREE.MeshBasicMaterial({ color: 0xf43f5e });
+            const wallMat = new THREE.MeshBasicMaterial({ color: 0x991b1b });
             const wall = new THREE.Mesh(wallGeo, wallMat);
             wall.position.set(0, 15, -30);
             scene.add(wall);
@@ -353,11 +391,11 @@
             if (gunMesh) camera.remove(gunMesh);
 
             const weaponType = document.getElementById("weaponSelect").value;
-            let gunColor = 0xf59e0b;
-            let width = 0.2, height = 0.2, length = 0.8;
+            let gunColor = 0xb45309; // لون خشبي بكسل
+            let width = 0.25, height = 0.25, length = 0.8;
 
-            if(weaponType === 'rifle') { length = 1.2; gunColor = 0x6366f1; } 
-            else if(weaponType === 'shotgun') { length = 1.0; width = 0.35; gunColor = 0xef4444; }
+            if(weaponType === 'rifle') { length = 1.2; gunColor = 0x334155; } 
+            else if(weaponType === 'shotgun') { length = 1.0; width = 0.35; gunColor = 0xb91c1c; }
 
             const gunGeo = new THREE.BoxGeometry(width, height, length);
             const gunMat = new THREE.MeshBasicMaterial({ color: gunColor });
@@ -368,28 +406,27 @@
         }
 
         function createBot() {
-            const botGeo = new THREE.BoxGeometry(1.1, 1.7, 1.1);
-            const botColors = [0xfacc15, 0xa855f7, 0x3b82f6, 0x14b8a6];
+            // تصميم البوت بمكعبات بكسلية بارزة تشبه شخصيات ماين كرافت
+            const botGeo = new THREE.BoxGeometry(1.2, 1.8, 1.2);
+            const botColors = [0xeab308, 0x9333ea, 0x2563eb, 0x0d9488];
             const botMat = new THREE.MeshBasicMaterial({ color: botColors[Math.floor(Math.random() * botColors.length)] });
             
             const bot = new THREE.Mesh(botGeo, botMat);
             bot.position.x = (Math.random() - 0.5) * 20;
-            bot.position.y = 0.85;
+            bot.position.y = 0.9;
             bot.position.z = -Math.random() * 18 - 5;
             
-            // خصائص الذكاء الاصطناعي المتقدمة لكل بوت
             bot.baseSpeed = (0.015 + Math.random() * 0.015) * difficultyMultiplier + (level - 1) * 0.003;
-            bot.aiTimer = Math.random() * 100; // للتحكم بحركة التموج والتفادي
-            bot.aiPattern = Math.floor(Math.random() * 3); // نمط حركة ذكي مختلف
+            bot.aiTimer = Math.random() * 100;
+            bot.aiPattern = Math.floor(Math.random() * 3);
 
             scene.add(bot);
             bots.push(bot);
         }
 
-        // تأثير الطخ
         function createSplatter(x, y, z, isWall = false) {
-            const splatterGeo = new THREE.CircleGeometry(0.35, 8);
-            const splatterColors = [0xffffff, 0xffff00, 0x00ffff, 0xff00ff, 0x00ff00];
+            const splatterGeo = new THREE.PlaneGeometry(0.4, 0.4); // شكل بكسلي مربع
+            const splatterColors = [0xffffff, 0xfde047, 0x22d3ee, 0xf43f5e, 0x4ade80];
             const splatterMat = new THREE.MeshBasicMaterial({ 
                 color: splatterColors[Math.floor(Math.random() * splatterColors.length)], 
                 side: THREE.DoubleSide 
@@ -397,9 +434,9 @@
             const splatter = new THREE.Mesh(splatterGeo, splatterMat);
 
             if (isWall) {
-                splatter.position.set(x, y, -29.9);
+                splatter.position.set(x, y, -29.8);
             } else {
-                splatter.position.set(x, 0.02, z);
+                splatter.position.set(x, 0.03, z);
                 splatter.rotation.x = -Math.PI / 2;
             }
             scene.add(splatter);
@@ -408,8 +445,14 @@
         function toggleScope() {
             isScoped = !isScoped;
             const scopeOverlay = document.getElementById("scopeOverlay");
-            scopeOverlay.style.display = isScoped ? "block" : "none";
-            camera.fov = isScoped ? 30 : 75;
+            
+            if (isScoped) {
+                scopeOverlay.style.display = "block";
+                camera.fov = 25;
+            } else {
+                scopeOverlay.style.display = "none";
+                camera.fov = 75;
+            }
             camera.updateProjectionMatrix();
         }
 
@@ -426,6 +469,10 @@
             for (let i = bots.length - 1; i >= 0; i--) {
                 let bot = bots[i];
                 if (camera.position.distanceTo(bot.position) < 20) {
+                    // عندما تطخ عدداً: دمك يصير فل 100%
+                    playerHp = 100;
+                    document.getElementById("hpBar").style.width = "100%";
+
                     createSplatter(bot.position.x, 1, 0, true);
                     createSplatter(bot.position.x, 0, bot.position.z, false);
 
@@ -442,8 +489,7 @@
                         document.getElementById("level").innerText = level;
                     }
 
-                    let xpPercent = (xp / maxXp) * 100;
-                    document.getElementById("xpBar").style.width = xpPercent + "%";
+                    document.getElementById("xpBar").style.width = ((xp / maxXp) * 100) + "%";
                     document.getElementById("score").innerText = Math.floor(score);
 
                     setTimeout(createBot, 500);
@@ -456,27 +502,26 @@
             if (isGameOver) return;
             requestAnimationFrame(animate);
 
-            // تحديث ذكاء الأعداء الاصطناعي في كل إطار
             bots.forEach(bot => {
                 bot.position.z += bot.baseSpeed;
                 bot.aiTimer += 0.05;
 
-                // أنماط الذكاء الاصطناعي للحركة الجانبية (المناورة وتفادي التصويب)
                 if (bot.aiPattern === 0) {
-                    // حركة متعرجة بسيطة يميناً ويساراً
                     bot.position.x += Math.sin(bot.aiTimer) * 0.04;
                 } else if (bot.aiPattern === 1) {
-                    // حركة اقتراب سريعة مع التفاف خفيف
                     bot.position.x += Math.cos(bot.aiTimer * 1.5) * 0.06;
                 } else {
-                    // مطاردة مباشرة ذكية نحو مركز اللاعب
                     if (bot.position.x < camera.position.x) bot.position.x += 0.015;
                     else bot.position.x -= 0.015;
                 }
 
-                // إذا وصل البوت للاعب تنتهي اللعبة
-                if (bot.position.z > camera.position.z - 0.4) {
-                    triggerGameOver();
+                if (bot.position.z > camera.position.z - 1.5) {
+                    playerHp -= 0.6 * difficultyMultiplier;
+                    document.getElementById("hpBar").style.width = Math.max(0, playerHp) + "%";
+
+                    if (playerHp <= 0) {
+                        triggerGameOver();
+                    }
                 }
             });
 
@@ -497,6 +542,7 @@
             level = 1;
             xp = 0;
             maxXp = 500;
+            playerHp = 100;
             isScoped = false;
             document.getElementById("scopeOverlay").style.display = "none";
             camera.fov = 75;
@@ -504,6 +550,7 @@
             document.getElementById("score").innerText = score;
             document.getElementById("level").innerText = level;
             document.getElementById("xpBar").style.width = "0%";
+            document.getElementById("hpBar").style.width = "100%";
             document.getElementById("gameOverScreen").style.display = "none";
             document.getElementById("gameUI").style.display = "block";
 
