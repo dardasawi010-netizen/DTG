@@ -526,3 +526,24 @@
 
 </body>
 </html>
+<!-- استدعاء مكتبات Firebase للويب -->
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+<script>
+  // بيانات التهيئة الخاصة بمشروعك
+  const firebaseConfig = {
+    apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
+    authDomain: "trucksapp-24ad7.firebaseapp.com",
+    projectId: "trucksapp-24ad7",
+    storageBucket: "trucksapp-24ad7.firebasestorage.app",
+    messagingSenderId: "254565994313",
+    appId: "1:254565994313:web:5df17e62fb68d94a9dd498",
+    measurementId: "G-Z5K2C79V50",
+    databaseURL: "https://trucksapp-24ad7-default-rtdb.firebaseio.com"
+  };
+
+  // تشغيل Firebase
+  firebase.initializeApp(firebaseConfig);
+  const database = firebase.database();
+</script>
