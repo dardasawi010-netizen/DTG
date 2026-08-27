@@ -178,7 +178,7 @@
     .btn-danger { background-color: #e53e3e; color: white; }
     .btn-close { background-color: #4a5568; color: white; }
 
-    /* قائمة الطلبات بالشكل الجديد المطلوب */
+    /* قائمة الطلبات بالشريط المطلوب */
     .feed-container {
       display: flex;
       flex-direction: column;
@@ -205,9 +205,6 @@
     .card-details-row {
       font-size: 0.85rem;
       color: #cbd5e0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
     .card-route {
       font-size: 0.95rem;
@@ -501,7 +498,7 @@
 
         card.innerHTML = `
           <div class="card-left-side">
-            <div class="card-details-row">🚚 شاحنة: ${data.truckNo} | ⚖️ ${data.tons} طن | 🛣️</div>
+            <div class="card-details-row">🚚 شاحنة: ${data.truckNo} | ⚖️ ${data.tons} طن</div>
             <div class="card-route">${routeText}</div>
           </div>
           <div>
