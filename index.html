@@ -1,529 +1,207 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة أشرطة الشاحنات والأطنان</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: #12181f;
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 420px;
-            height: 100vh;
-            background-color: #1e2631;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-        }
-
-        /* 1. شاشة تسجيل الدخول */
-        #login-screen {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #1e2631;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            z-index: 10;
-        }
-
-        .modal-card {
-            background-color: #12181f;
-            border-radius: 16px;
-            padding: 28px 24px;
-            width: 100%;
-            text-align: center;
-            border: 1px solid #2d3748;
-        }
-
-        .modal-card h2 {
-            font-size: 18px;
-            margin-bottom: 8px;
-            color: #f0f4f8;
-        }
-
-        .modal-card p.subtitle {
-            font-size: 14px;
-            color: #a0aec0;
-            margin-bottom: 20px;
-        }
-
-        .input-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            direction: ltr;
-        }
-
-        .phone-input {
-            width: 100%;
-            padding: 12px 14px;
-            font-size: 18px;
-            letter-spacing: 2px;
-            background-color: #1e2631;
-            color: #ffffff;
-            border: 2px dashed #4a5568;
-            border-radius: 8px;
-            outline: none;
-        }
-
-        .flag-icon {
-            width: 32px;
-            height: 22px;
-            border-radius: 3px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background-color: #2e7d32;
-            color: #ffffff;
-        }
-
-        .error-msg {
-            color: #e53e3e;
-            font-size: 13px;
-            margin-bottom: 12px;
-            display: none;
-        }
-
-        /* 2. الشاشة الرئيسية */
-        #home-screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .header {
-            padding: 16px;
-            background-color: #12181f;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2d3748;
-        }
-
-        .header h3 {
-            font-size: 15px;
-            color: #38a169;
-        }
-
-        .logout-btn {
-            background: none;
-            border: none;
-            color: #e53e3e;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .action-banner {
-            background: linear-gradient(135deg, #2e7d32, #1b5e20);
-            padding: 14px;
-            margin: 12px;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-        }
-
-        .action-banner h4 {
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .action-banner p {
-            font-size: 12px;
-            color: #d4edda;
-            margin-bottom: 10px;
-        }
-
-        .truck-btn {
-            background-color: #ffffff;
-            color: #1b5e20;
-            border: none;
-            padding: 7px 16px;
-            font-weight: bold;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .content-area {
-            flex: 1;
-            overflow-y: auto;
-            padding: 0 12px 12px 12px;
-        }
-
-        .section-title {
-            font-size: 13px;
-            color: #a0aec0;
-            margin-bottom: 8px;
-        }
-
-        .no-data {
-            text-align: center;
-            color: #718096;
-            font-size: 13px;
-            margin-top: 30px;
-        }
-
-        /* تصميم أشرطة الشاحنات المتاحة */
-        .truck-ticker-bar {
-            background-color: #12181f;
-            border: 1px solid #2d3748;
-            border-radius: 10px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .ticker-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .ticker-info {
-            font-size: 13px;
-            color: #e2e8f0;
-        }
-
-        .ticker-actions {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
-
-        .accept-btn {
-            background-color: #2e7d32;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .contact-box {
-            display: none;
-            background-color: #1e2631;
-            padding: 6px 10px;
-            border-radius: 6px;
-            font-size: 12px;
-            color: #68d391;
-            border: 1px dashed #38a169;
-            margin-top: 4px;
-        }
-
-        /* 3. شاشة إضافة شاحنة جديدة */
-        #form-screen {
-            display: none;
-            flex-direction: column;
-            height: 100%;
-        }
-
-        .form-header {
-            padding: 14px 16px;
-            background-color: #12181f;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #2d3748;
-        }
-
-        .back-btn {
-            background-color: #2d3748;
-            border: none;
-            color: #cbd5e0;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 13px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .form-body {
-            padding: 20px;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            text-align: right;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            color: #a0aec0;
-        }
-
-        .form-group input {
-            padding: 10px 12px;
-            background-color: #12181f;
-            border: 1px solid #2d3748;
-            border-radius: 8px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تطبيق الدردشة - TrucksApp</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e5ddd5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .chat-container {
+      width: 100%;
+      max-width: 480px;
+      height: 90vh;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-header {
+      background-color: #075e54;
+      color: #ffffff;
+      padding: 16px;
+      text-align: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .username-bar {
+      background: #128c7e;
+      padding: 8px 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .username-bar input {
+      flex: 1;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      outline: none;
+    }
+    .chat-box {
+      flex: 1;
+      padding: 16px;
+      background-color: #efeae2;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .message {
+      background-color: #ffffff;
+      padding: 8px 12px;
+      border-radius: 8px;
+      max-width: 80%;
+      word-wrap: break-word;
+      font-size: 0.95rem;
+      color: #333333;
+      align-self: flex-start;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+      display: flex;
+      flex-direction: column;
+    }
+    .message.my-message {
+      background-color: #dcf8c6;
+      align-self: flex-end;
+    }
+    .message .sender-name {
+      font-size: 0.75rem;
+      font-weight: bold;
+      color: #075e54;
+      margin-bottom: 2px;
+    }
+    .chat-input-area {
+      display: flex;
+      padding: 10px;
+      background-color: #f0f0f0;
+      border-top: 1px solid #cccccc;
+    }
+    .chat-input-area input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      outline: none;
+      font-size: 1rem;
+      margin-left: 8px;
+    }
+    .chat-input-area button {
+      background-color: #075e54;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    .chat-input-area button:hover {
+      background-color: #128c7e;
+    }
+  </style>
 </head>
-<body onload="checkLoginStatus()">
+<body>
 
-    <div class="container">
-
-        <!-- 1. شاشة تسجيل الدخول -->
-        <div id="login-screen">
-            <div class="modal-card">
-                <h2>دخول شبكة الشاحنات</h2>
-                <p class="subtitle">أدخل رقم هاتفك الأردني للمتابعة</p>
-
-                <div class="input-container">
-                    <input type="tel" id="phoneNumber" class="phone-input" value="07" maxlength="10">
-                    <img class="flag-icon" src="https://flagcdn.com/w40/jo.png" alt="علم الأردن">
-                </div>
-
-                <div id="errorMsg" class="error-msg">يرجى إدخال رقم أردني صحيح (10 أرقام)</div>
-
-                <button class="btn" onclick="login()">تسجيل الدخول</button>
-            </div>
-        </div>
-
-        <!-- 2. الشاشة الرئيسية وعرض الأشرطة -->
-        <div id="home-screen">
-            <div class="header">
-                <div>
-                    <h3>أشرطة طلبات الشاحنات</h3>
-                    <span id="user-phone-display" style="font-size: 11px; color: #a0aec0;"></span>
-                </div>
-                <button class="logout-btn" onclick="logout()">تسجيل الخروج</button>
-            </div>
-
-            <div class="action-banner">
-                <h4>إضافة طلب شاحنة جديد</h4>
-                <p>سجل رقم شاحنتك وعدد الأطنان لتظهر في أشرطة البث لجميع المستخدمين</p>
-                <button class="truck-btn" onclick="openFormScreen()">+ أضف شاحنتك الآن</button>
-            </div>
-
-            <div class="content-area">
-                <p class="section-title">أشرطة الشاحنات المتاحة حالياً:</p>
-                <div id="trucksTickerList">
-                    <!-- سيتم تعبئة الأشرطة هنا برمجياً -->
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. شاشة إدخال بيانات الشاحنة -->
-        <div id="form-screen">
-            <div class="form-header">
-                <button class="back-btn" onclick="goBackToHome()">← الرجوع للوحة الرئيسية</button>
-                <h4 style="font-size: 14px; color: #38a169;">إضافة شاحنة</h4>
-                <span></span>
-            </div>
-
-            <div class="form-body">
-                <div class="form-group">
-                    <label>رقم لوحة الشاحنة:</label>
-                    <input type="text" id="truckPlate" placeholder="مثال: 12-44552">
-                </div>
-
-                <div class="form-group">
-                    <label>كم عدد الأطنان المطلوبة/المتاحة؟</label>
-                    <input type="number" id="truckTons" placeholder="مثال: 30">
-                </div>
-
-                <div class="form-group">
-                    <label>المسار أو البضاعة:</label>
-                    <input type="text" id="truckRoute" placeholder="مثال: عمان إلى العقبة (حديد/حبوب)">
-                </div>
-
-                <div class="form-group">
-                    <label>رقم التواصل الخاص بك:</label>
-                    <input type="tel" id="truckContact" placeholder="07xxxxxxxx">
-                </div>
-
-                <button class="btn" onclick="submitTruckTicker()" style="margin-top: 10px;">نشر كشريط للجميع</button>
-            </div>
-        </div>
-
+  <div class="chat-container">
+    <div class="chat-header">تطبيق TrucksApp للمراسلة</div>
+    <div class="username-bar">
+      <input type="text" id="username-input" placeholder="اكتب اسمك هنا (مثالي: سائق 1)" value="مستخدم">
     </div>
+    <div class="chat-box" id="chat-box"></div>
+    <div class="chat-input-area">
+      <input type="text" id="message-input" placeholder="اكتب رسالتك هنا..." autocomplete="off">
+      <button id="send-btn">إرسال</button>
+    </div>
+  </div>
 
-    <script>
-        // دالة لجلب الطلبات المحفوظة (أو مصفوفة فارغة إذا لم تكن موجودة)
-        function getStoredTickers() {
-            const data = localStorage.getItem('trucksTickersList');
-            if (data) {
-                return JSON.parse(data);
-            }
-            return []; // تم حذف الشاحنات الوهمية السابقة لتكون القائمة نظيفة
-        }
+  <!-- مكتبات Firebase Mappers المعتمدة للمتصفح مباشرة -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
-        function saveTickers(tickers) {
-            localStorage.setItem('trucksTickersList', JSON.stringify(tickers));
-        }
+  <script>
+    // إعدادات الربط الخاصة بمشروعك
+    const firebaseConfig = {
+      apiKey: "AIzaSyBVrJk-B6COMjBWhXXhie-NpZihWLG8RSk",
+      authDomain: "trucksapp-24ad7.firebaseapp.com",
+      projectId: "trucksapp-24ad7",
+      storageBucket: "trucksapp-24ad7.firebasestorage.app",
+      messagingSenderId: "254565994313",
+      appId: "1:254565994313:web:5df17e62fb68d94a9dd498",
+      measurementId: "G-Z5K2C79V50",
+      databaseURL: "https://trucksapp-24ad7-default-rtdb.firebaseio.com"
+    };
 
-        function checkLoginStatus() {
-            const savedPhone = localStorage.getItem('truckAppUserPhone');
-            if (savedPhone) {
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('home-screen').style.display = 'flex';
-                document.getElementById('user-phone-display').innerText = "الهاتف: " + savedPhone;
-                renderTickers();
-            }
-        }
+    // تشغيل Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const messagesRef = database.ref('messages');
 
-        function login() {
-            const phone = document.getElementById('phoneNumber').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
-            const jordanRegex = /^07[789]\d{7}$/;
+    const chatBox = document.getElementById('chat-box');
+    const messageInput = document.getElementById('message-input');
+    const usernameInput = document.getElementById('username-input');
+    const sendBtn = document.getElementById('send-btn');
 
-            if (jordanRegex.test(phone)) {
-                errorMsg.style.display = 'none';
-                localStorage.setItem('truckAppUserPhone', phone);
+    // دالة إرسال الرسالة
+    function sendMessage() {
+      const text = messageInput.value.trim();
+      const sender = usernameInput.value.trim() || "مستخدم مجهول";
 
-                document.getElementById('login-screen').style.display = 'none';
-                document.getElementById('home-screen').style.display = 'flex';
-                document.getElementById('user-phone-display').innerText = "الهاتف: " + phone;
-                renderTickers();
-            } else {
-                errorMsg.style.display = 'block';
-            }
-        }
-
-        function logout() {
-            localStorage.removeItem('truckAppUserPhone');
-            document.getElementById('home-screen').style.display = 'none';
-            document.getElementById('login-screen').style.display = 'flex';
-            document.getElementById('phoneNumber').value = '07';
-        }
-
-        function openFormScreen() {
-            document.getElementById('home-screen').style.display = 'none';
-            document.getElementById('form-screen').style.display = 'flex';
-        }
-
-        function goBackToHome() {
-            document.getElementById('form-screen').style.display = 'none';
-            document.getElementById('home-screen').style.display = 'flex';
-        }
-
-        function submitTruckTicker() {
-            const plate = document.getElementById('truckPlate').value.trim();
-            const tons = document.getElementById('truckTons').value.trim();
-            const route = document.getElementById('truckRoute').value.trim();
-            const contact = document.getElementById('truckContact').value.trim();
-
-            if (!plate || !tons || !route || !contact) {
-                alert("يرجى تعبئة كافة الحقول بدقة.");
-                return;
-            }
-
-            let trucksTickers = getStoredTickers();
-            trucksTickers.unshift({
-                plate: plate,
-                tons: tons + " طن",
-                route: route,
-                contact: contact
-            });
-
-            saveTickers(trucksTickers);
-
-            document.getElementById('truckPlate').value = '';
-            document.getElementById('truckTons').value = '';
-            document.getElementById('truckRoute').value = '';
-            document.getElementById('truckContact').value = '';
-
-            goBackToHome();
-            renderTickers();
-        }
-
-        function renderTickers() {
-            const container = document.getElementById('trucksTickerList');
-            container.innerHTML = '';
-
-            const trucksTickers = getStoredTickers();
-
-            if (trucksTickers.length === 0) {
-                container.innerHTML = '<div class="no-data">لا توجد أشرطة شاحنات متاحة حالياً. أضف شاحنتك الآن!</div>';
-                return;
-            }
-
-            trucksTickers.forEach((item, index) => {
-                const bar = document.createElement('div');
-                bar.className = 'truck-ticker-bar';
-
-                bar.innerHTML = `
-                    <div class="ticker-top">
-                        <div class="ticker-info">
-                            🚛 <strong>شاحنة:</strong> ${item.plate} | ⚖️ <strong>${item.tons}</strong> | 🛣️ ${item.route}
-                        </div>
-                        <div class="ticker-actions">
-                            <button class="accept-btn" id="btn-${index}" onclick="acceptAndShowContact(${index})">قبول وطلب التواصل</button>
-                        </div>
-                    </div>
-                    <div class="contact-box" id="contact-${index}">
-                        📞 رقم التواصل المباشر: <strong>${item.contact}</strong>
-                    </div>
-                `;
-                container.appendChild(bar);
-            });
-        }
-
-        function acceptAndShowContact(index) {
-            const contactBox = document.getElementById(`contact-${index}`);
-            const btn = document.getElementById(`btn-${index}`);
-            
-            contactBox.style.display = 'block';
-            btn.innerText = 'تم القبول ✓';
-            btn.style.backgroundColor = '#1a365d';
-            btn.disabled = true;
-        }
-
-        // الاستماع لتحديثات التخزين المحلي لضمان المزامنة الفورية في حال فتح التطبيق على متصفحات متعددة
-        window.addEventListener('storage', function(e) {
-            if (e.key === 'trucksTickersList') {
-                renderTickers();
-            }
+      if (text !== "") {
+        messagesRef.push({
+          sender: sender,
+          text: text,
+          timestamp: Date.now()
         });
-    </script>
+        messageInput.value = "";
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // الاستماع للرسائل في الوقت الفعلي
+    messagesRef.on('child_added', (snapshot) => {
+      const msg = snapshot.val();
+      const currentSender = usernameInput.value.trim() || "مستخدم مجهول";
+      
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message');
+      
+      // إذا كانت الرسالة من صاحب الجهاز تظهر باللون الأخضر على اليسار
+      if (msg.sender === currentSender) {
+        msgDiv.classList.add('my-message');
+      }
+
+      const senderDiv = document.createElement('div');
+      senderDiv.classList.add('sender-name');
+      senderDiv.textContent = msg.sender || "مستخدم";
+
+      const textDiv = document.createElement('div');
+      textDiv.textContent = msg.text;
+
+      msgDiv.appendChild(senderDiv);
+      msgDiv.appendChild(textDiv);
+      
+      chatBox.appendChild(msgDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  </script>
 
 </body>
-</html>: "trucksapp-24ad7.firebasestorage.app",
-    
+</html>
