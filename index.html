@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ماريو لوكي بلوك - تحكم بالهاتف</title>
+    <title>لعبة المغامرة الكبرى - لوكي بلوك</title>
     <style>
         * {
             box-sizing: border-box;
@@ -11,7 +11,7 @@
             -webkit-user-select: none;
         }
         body {
-            background-color: #111;
+            background-color: #0d1117;
             color: white;
             text-align: center;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -20,87 +20,90 @@
             overflow: hidden;
         }
         h1 {
-            font-size: 20px;
+            font-size: 18px;
             margin: 5px 0;
             color: #f1c40f;
-            text-shadow: 0 0 10px rgba(241, 196, 15, 0.5);
+        }
+        .ui-panel {
+            display: flex;
+            justify-content: space-around;
+            max-width: 600px;
+            margin: 0 auto 5px auto;
+            font-size: 14px;
+            background: rgba(255,255,255,0.05);
+            padding: 5px;
+            border-radius: 8px;
         }
         .canvas-container {
             position: relative;
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
-            border: 4px solid #f1c40f;
+            border: 3px solid #f1c40f;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.3);
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
         }
         canvas {
-            background: linear-gradient(to bottom, #1a252f, #2c3e50);
+            background: linear-gradient(to bottom, #1a252f, #34495e);
             display: block;
             width: 100%;
             height: auto;
         }
-        /* أزرار التحكم للهاتف */
+        /* لوحة التحكم المخصصة للهاتف */
         .controls {
             display: flex;
             justify-content: space-between;
             max-width: 600px;
-            margin: 15px auto 0 auto;
+            margin: 12px auto 0 auto;
             padding: 0 10px;
         }
         .btn-group {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
         .control-btn {
-            background: rgba(241, 196, 15, 0.2);
+            background: rgba(241, 196, 15, 0.15);
             border: 2px solid #f1c40f;
             color: #f1c40f;
             font-size: 22px;
-            font-weight: bold;
-            width: 65px;
-            height: 65px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
             outline: none;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            transition: background 0.1s;
         }
         .control-btn:active {
-            background: rgba(241, 196, 15, 0.6);
-            transform: scale(0.95);
+            background: rgba(241, 196, 15, 0.5);
         }
         .jump-btn {
-            background: rgba(46, 204, 113, 0.2);
+            background: rgba(46, 204, 113, 0.15);
             border-color: #2ecc71;
             color: #2ecc71;
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
+            width: 75px;
+            height: 75px;
         }
         .jump-btn:active {
-            background: rgba(46, 204, 113, 0.6);
-        }
-        .score-board {
-            font-size: 16px;
-            margin-bottom: 5px;
-            color: #fff;
+            background: rgba(46, 204, 113, 0.5);
         }
     </style>
 </head>
 <body>
 
-    <h1>ماريو: مغامرة لوكي بلوك 🌟</h1>
-    <div class="score-board">النقاط: <span id="score">0</span> | الحظ: <span id="luckMsg">ابحث عن الصناديق الصفراء!</span></div>
-
-    <div class="canvas-container">
-        <canvas id="gameCanvas" width="600" height="350"></canvas>
+    <h1>🌟 مغامرة الكتل المحظوظة والأبطال 🌟</h1>
+    <div class="ui-panel">
+        <div>❤️ القلوب: <span id="lives">3</span></div>
+        <div>💰 العملات: <span id="coins">0</span></div>
+        <div>🏆 النقاط: <span id="score">0</span></div>
     </div>
 
+    <div class="canvas-container">
+        <canvas id="gameCanvas" width="600" height="320"></canvas>
+    </div>
+
+    <!-- أزرار التحكم باللمس للهاتف -->
     <div class="controls">
         <div class="btn-group">
             <button class="control-btn" id="leftBtn">◀</button>
@@ -114,51 +117,73 @@
     <script>
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
-        const scoreElement = document.getElementById("score");
-        const luckMsg = document.getElementById("luckMsg");
 
+        // عناصر الواجهة
+        const livesEl = document.getElementById("lives");
+        const coinsEl = document.getElementById("coins");
+        const scoreEl = document.getElementById("score");
+
+        // متغيرات اللعبة الأساسية
         let score = 0;
+        let coins = 0;
+        let lives = 3;
+        let gameState = "PLAYING"; // PLAYING, GAMEOVER, WIN
 
-        // خصائص ماريو
-        let mario = {
+        // البطل (Player)
+        let player = {
             x: 50,
-            y: 200,
-            width: 28,
-            height: 38,
-            speed: 4.5,
+            y: 180,
+            width: 26,
+            height: 36,
+            speed: 4,
             dx: 0,
             dy: 0,
-            jumpPower: -10.5,
+            jumpPower: -9.5,
             grounded: false
         };
 
-        const gravity = 0.5;
+        const gravity = 0.45;
 
-        // المنصات مصممة على شكل "لوكي بلوك" (Lucky Blocks) صفراء مرسوم عليها علامة ?
+        // المنصات واللوكي بلوك
         let platforms = [
-            { x: 0, y: 310, width: 600, height: 40, type: "ground" }, // الأرضية الخضراء الحجرية
-            { x: 180, y: 220, width: 120, height: 35, type: "lucky" },  // لوكي بلوك 1
-            { x: 380, y: 150, width: 120, height: 35, type: "lucky" }   // لوكي بلوك 2
+            { x: 0, y: 280, width: 800, height: 40, type: "ground" },
+            { x: 200, y: 190, width: 100, height: 30, type: "lucky", opened: false },
+            { x: 380, y: 130, width: 100, height: 30, type: "lucky", opened: false },
+            { x: 550, y: 190, width: 120, height: 30, type: "platform" }
         ];
 
-        // تتبع حالة أزرار اللمس واللوحة
+        // العملات القابلة للجمع
+        let collectables = [
+            { x: 235, y: 150, radius: 8, collected: false },
+            { x: 415, y: 90, radius: 8, collected: false },
+            { x: 600, y: 150, radius: 8, collected: false }
+        ];
+
+        // الأعداء والعقبات
+        let enemies = [
+            { x: 300, y: 250, width: 25, height: 30, speed: 1.5, minX: 200, maxX: 450, dir: 1 }
+        ];
+
+        // بوابة النهاية
+        let goal = { x: 730, y: 210, width: 30, height: 70 };
+
+        // أداة تتبع الأزرار والتحكم
         let keys = {};
 
-        // أحداث لوحة المفاتيح (للكمبيوتر)
         window.addEventListener("keydown", (e) => {
             keys[e.code] = true;
-            if ((e.code === "Space" || e.code === "ArrowUp") && mario.grounded) {
+            if ((e.code === "Space" || e.code === "ArrowUp") && player.grounded && gameState === "PLAYING") {
                 jump();
             }
         });
         window.addEventListener("keyup", (e) => { keys[e.code] = false; });
 
-        // ربط أزرار اللمس (للهاتف الذكي)
+        // ربط أزرار اللمس بالهاتف
         const setupTouch = (id, code) => {
             const btn = document.getElementById(id);
-            btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; if(id === 'jumpBtn' && mario.grounded) jump(); });
+            btn.addEventListener("touchstart", (e) => { e.preventDefault(); keys[code] = true; if(id === 'jumpBtn' && player.grounded && gameState === 'PLAYING') jump(); });
             btn.addEventListener("touchend", (e) => { e.preventDefault(); keys[code] = false; });
-            btn.addEventListener("mousedown", () => { keys[code] = true; if(id === 'jumpBtn' && mario.grounded) jump(); });
+            btn.addEventListener("mousedown", () => { keys[code] = true; if(id === 'jumpBtn' && player.grounded && gameState === 'PLAYING') jump(); });
             btn.addEventListener("mouseup", () => { keys[code] = false; });
         };
 
@@ -167,111 +192,204 @@
         setupTouch("jumpBtn", "Space");
 
         function jump() {
-            mario.dy = mario.jumpPower;
-            mario.grounded = false;
+            player.dy = player.jumpPower;
+            player.grounded = false;
         }
 
         function update() {
+            if (gameState !== "PLAYING") return;
+
+            // الحركة الأفقية
             if (keys["ArrowRight"]) {
-                mario.dx = mario.speed;
+                player.dx = player.speed;
             } else if (keys["ArrowLeft"]) {
-                mario.dx = -mario.speed;
+                player.dx = -player.speed;
             } else {
-                mario.dx = 0;
+                player.dx = 0;
             }
 
-            mario.dy += gravity;
-            mario.x += mario.dx;
-            mario.y += mario.dy;
+            // الجاذبية والحركة
+            player.dy += gravity;
+            player.x += player.dx;
+            player.y += player.dy;
 
-            // الحدود الجانبية
-            if (mario.x < 0) mario.x = 0;
-            if (mario.x + mario.width > canvas.width) mario.x = canvas.width - mario.width;
+            // حدود الشاشة
+            if (player.x < 0) player.x = 0;
 
-            // فحص الاصطدام بالمنصات واللوكي بلوك
-            mario.grounded = false;
+            // اصطدام اللاعب بالمنصات واللوكي بلوك
+            player.grounded = false;
             platforms.forEach(plat => {
                 if (
-                    mario.x < plat.x + plat.width &&
-                    mario.x + mario.width > plat.x &&
-                    mario.y + mario.height >= plat.y &&
-                    mario.y + mario.height - mario.dy <= plat.y
+                    player.x < plat.x + plat.width &&
+                    player.x + player.width > plat.x &&
+                    player.y + player.height >= plat.y &&
+                    player.y + player.height - player.dy <= plat.y
                 ) {
-                    mario.dy = 0;
-                    mario.y = plat.y - mario.height;
-                    mario.grounded = true;
+                    player.dy = 0;
+                    player.y = plat.y - player.height;
+                    player.grounded = true;
 
-                    // إذا كانت المنصة لوكي بلوك وصعد عليها لأول مرة
+                    // تفعيل اللوكي بلوك عند الاصطدام من الأسفل للأعلى أو الوقوف عليها
                     if (plat.type === "lucky" && !plat.opened) {
                         plat.opened = true;
-                        let luckEvents = ["+100 نقطة حظ! 🌟", "ضربة قوية! 🔥", "مفاجأة سارة! 🎁", "طفرة نقاط! 💎"];
-                        let randomEvent = luckEvents[Math.floor(Math.random() * luckEvents.length)];
-                        luckMsg.innerText = randomEvent;
-                        score += 100;
-                        scoreElement.innerText = score;
-                        plat.color = "#7f8c8d"; // يتحول لون البلوك للرمادي بعد فتحه
+                        coins += 5;
+                        score += 200;
+                        coinsEl.innerText = coins;
+                        scoreEl.innerText = score;
                     }
                 }
             });
 
-            // السقوط بالخارج
-            if (mario.y > canvas.height) {
-                resetGame();
-            }
-        }
+            // جمع العملات
+            collectables.forEach(item => {
+                if (!item.collected) {
+                    let dist = Math.hypot((player.x + player.width/2) - item.x, (player.y + player.height/2) - item.y);
+                    if (dist < 20) {
+                        item.collected = true;
+                        coins += 1;
+                        score += 50;
+                        coinsEl.innerText = coins;
+                        scoreEl.innerText = score;
+                    }
+                }
+            });
 
-        function resetGame() {
-            mario.x = 50;
-            mario.y = 200;
-            mario.dy = 0;
-            luckMsg.innerText = "لقد سقطت! حاول مجدداً";
+            // حركة الأعداء
+            enemies.forEach(enemy => {
+                enemy.x += enemy.speed * enemy.dir;
+                if (enemy.x < enemy.minX || enemy.x > enemy.maxX) {
+                    enemy.dir *= -1;
+                }
+
+                // فحص الاصطدام بالعدو
+                if (
+                    player.x < enemy.x + enemy.width &&
+                    player.x + player.width > enemy.x &&
+                    player.y < enemy.y + enemy.height &&
+                    player.y + player.height > enemy.y
+                ) {
+                    // إذا سقط اللاعب فوق العدو يقضي عليه
+                    if (player.dy > 0 && player.y + player.height - player.dy <= enemy.y + 10) {
+                        enemies = enemies.filter(e => e !== enemy);
+                        score += 100;
+                        scoreEl.innerText = score;
+                        player.dy = -6; // قفزة خفيفة بعد قتل العدو
+                    } else {
+                        // خسارة حياة
+                        lives--;
+                        livesEl.innerText = lives;
+                        player.x = 50;
+                        player.y = 150;
+                        if (lives <= 0) {
+                            gameState = "GAMEOVER";
+                        }
+                    }
+                }
+            });
+
+            // الوصول لبوابة النهاية (الفوز)
+            if (
+                player.x < goal.x + goal.width &&
+                player.x + player.width > goal.x &&
+                player.y < goal.y + goal.height &&
+                player.y + player.height > goal.y
+            ) {
+                gameState = "WIN";
+            }
+
+            // السقوط في الحفرة
+            if (player.y > canvas.height) {
+                lives--;
+                livesEl.innerText = lives;
+                player.x = 50;
+                player.y = 150;
+                player.dy = 0;
+                if (lives <= 0) {
+                    gameState = "GAMEOVER";
+                }
+            }
         }
 
         function draw() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // تحريك الكاميرا الأفقية بناءً على مكان اللاعب
+            ctx.save();
+            let cameraX = -player.x + 150;
+            if (cameraX > 0) cameraX = 0; // عدم الرجوع للخلف قبل بداية الماب
+            ctx.translate(cameraX, 0);
+
+            // رسم البوابة
+            ctx.fillStyle = "#9b59b6";
+            ctx.fillRect(goal.x, goal.y, goal.width, goal.height);
+            ctx.fillStyle = "#fff";
+            ctx.fillRect(goal.x + 5, goal.y + 10, 5, 50);
 
             // رسم المنصات واللوكي بلوك
             platforms.forEach(plat => {
                 if (plat.type === "ground") {
                     ctx.fillStyle = "#27ae60";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                    // تفاصيل حجرية بالأعلى
-                    ctx.fillStyle = "#2ecc71";
-                    ctx.fillRect(plat.x, plat.y, plat.width, 8);
-                } else {
-                    // شكل اللوكي بلوك الأصفر المميز
+                } else if (plat.type === "lucky") {
                     ctx.fillStyle = plat.opened ? "#7f8c8d" : "#f1c40f";
                     ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
-                    
-                    // إطار الحدود للوكي بلوك
                     ctx.strokeStyle = "#d35400";
-                    ctx.lineWidth = 3;
                     ctx.strokeRect(plat.x, plat.y, plat.width, plat.height);
-
-                    // كتابة علامة الاستفهام (?) في منتصف الصندوق
                     if (!plat.opened) {
-                        ctx.fillStyle = "#ffffff";
-                        ctx.font = "bold 20px Arial";
-                        ctx.fillText("?", plat.x + plat.width / 2 - 6, plat.y + 24);
+                        ctx.fillStyle = "#fff";
+                        ctx.font = "bold 16px Arial";
+                        ctx.fillText("?", plat.x + plat.width / 2 - 5, plat.y + 21);
                     }
+                } else {
+                    ctx.fillStyle = "#e67e22";
+                    ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
                 }
             });
 
-            // رسم شخصية ماريو الواقعية بتفاصيل أنيق ومجسمة
-            // الجسم (القميص أو السالوبيت الأحمر والأزرق)
-            ctx.fillStyle = "#e74c3c"; // أحمر ماريو
-            ctx.fillRect(mario.x + 4, mario.y + 12, 20, 20);
-            
-            // البنطال الأزرق
-            ctx.fillStyle = "#2980b9";
-            ctx.fillRect(mario.x + 6, mario.y + 24, 16, 14);
+            // رسم العملات
+            collectables.forEach(item => {
+                if (!item.collected) {
+                    ctx.fillStyle = "#f39c12";
+                    ctx.beginPath();
+                    ctx.arc(item.x, item.y, item.radius, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = "#d35400";
+                    ctx.stroke();
+                }
+            });
 
-            // الوجه والقبعة
-            ctx.fillStyle = "#f39c12"; // لون الوجه
-            ctx.fillRect(mario.x + 6, mario.y + 2, 16, 14);
-            
-            ctx.fillStyle = "#c0392b"; // القبعة الحمراء
-            ctx.fillRect(mario.x + 2, mario.y, 24, 6);
+            // رسم الأعداء
+            enemies.forEach(enemy => {
+                ctx.fillStyle = "#e74c3c";
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                // عيون العدو
+                ctx.fillStyle = "#fff";
+                ctx.fillRect(enemy.x + 4, enemy.y + 6, 5, 5);
+            });
+
+            // رسم اللاعب (البطل)
+            ctx.fillStyle = "#3498db";
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+            // قبعة البطل
+            ctx.fillStyle = "#2980b9";
+            ctx.fillRect(player.x - 2, player.y, player.width + 4, 8);
+
+            ctx.restore();
+
+            // شاشات النهاية (الفوز / الخسارة)
+            if (gameState === "GAMEOVER") {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#e74c3c";
+                ctx.font = "bold 24px Arial";
+                ctx.fillText("انتهت اللعبة! (Game Over)", 150, 150);
+            } else if (gameState === "WIN") {
+                ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = "#2ecc71";
+                ctx.font = "bold 24px Arial";
+                ctx.fillText("مبروك! لقد فزت بالمرحلة 🎉", 140, 150);
+            }
         }
 
         function loop() {
